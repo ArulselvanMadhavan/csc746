@@ -14,22 +14,27 @@
 int main(int ac, char *av[]) {
   int problem_size = 100000;
   unsigned long long int sum = 0;
-
+  int ptr = 0;
   if (ac > 1) {
     problem_size = std::atoi(av[1]);
     std::cout << "String value = " << av[1] << std::endl;
     std::cout << "Problem size value = " << problem_size << std::endl;
   }
-  // TODO: Initialize to the index
+
   std::vector<unsigned long long> vect =
-      std::vector<unsigned long long>(problem_size, 1);
+      std::vector<unsigned long long>(problem_size);
+
+  // Initialize to rand integers
+  for (int i = 0; i < problem_size - 1; i++) {
+    vect[i] = lrand48() % problem_size;
+  }
 
   std::chrono::time_point<std::chrono::high_resolution_clock> start_time =
       std::chrono::high_resolution_clock::now();
 
-  for (std::vector<unsigned long long>::iterator it = vect.begin();
-       it != vect.end(); ++it) {
-    sum += *it;
+  for (int i = 0; i < problem_size; i++) {
+    sum += vect[ptr];
+    ptr = vect[ptr];
   }
 
   std::chrono::time_point<std::chrono::high_resolution_clock> end_time =
