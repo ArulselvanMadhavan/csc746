@@ -1,0 +1,8 @@
+* SSH
+  - To get keys
+  #+begin_src bash
+./sshproxy.sh -u <nersc_username>
+  #+end_src
+  - To login
+    #+begin_src bash
+    #+end_src
