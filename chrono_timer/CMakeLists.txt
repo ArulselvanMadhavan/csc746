@@ -22,5 +22,6 @@ set( CMAKE_VERBOSE_MAKEFILE on )
 # -O0 is no optimization in gcc/g++
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O0")
  
-add_executable (chrono_timer chrono_timer.cpp)
+add_executable (no_mem no_mem.cpp)
+add_executable (structured_mem structured_mem.cpp)
 
