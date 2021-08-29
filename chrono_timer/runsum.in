@@ -1,0 +1,16 @@
+#!/bin/bash -i
+#SBATCH -C knl
+#SBATCH -p debug
+#SBATCH -N 1
+#SBATCH -t 00:3:00
+
+echo "Running -O3 level optimization with input"
+for i in {1,5,10,50,100,500,1000}
+do
+  echo "No mem"
+  srun ./no_mem $i"00000"
+  echo "Structured mem"
+  srun ./structured_mem $i"00000"
+  echo "unstructured mem"
+  srun ./unstructured_mem $i"00000"
+done

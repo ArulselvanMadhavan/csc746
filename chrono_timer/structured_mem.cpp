@@ -17,7 +17,6 @@ int main(int ac, char *av[]) {
 
   if (ac > 1) {
     problem_size = std::atoi(av[1]);
-    std::cout << "String value = " << av[1] << std::endl;
     std::cout << "Problem size value = " << problem_size << std::endl;
   }
   // TODO: Initialize to the index
