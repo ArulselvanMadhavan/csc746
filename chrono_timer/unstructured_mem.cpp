@@ -26,7 +26,7 @@ int main(int ac, char *av[]) {
       std::vector<unsigned long long>(problem_size);
 
   // Initialize to rand integers
-  for (int i = 0; i < problem_size - 1; i++) {    
+  for (int i = 0; i < problem_size; i++) {    
     vect[i] = lrand48() % problem_size;
   }
 

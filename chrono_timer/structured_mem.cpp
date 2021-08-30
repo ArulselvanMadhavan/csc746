@@ -19,16 +19,21 @@ int main(int ac, char *av[]) {
     problem_size = std::atoi(av[1]);
     std::cout << "Problem size value = " << problem_size << std::endl;
   }
-  // TODO: Initialize to the index
-  std::vector<unsigned long long> vect =
-      std::vector<unsigned long long>(problem_size, 1);
 
+
+  std::vector<unsigned long long> vect =
+      std::vector<unsigned long long>(problem_size);
+
+  // Initialize to rand integers
+  for (int i = 0; i < problem_size; i++) {    
+    vect[i] = i;
+  }
+  
   std::chrono::time_point<std::chrono::high_resolution_clock> start_time =
       std::chrono::high_resolution_clock::now();
 
-  for (std::vector<unsigned long long>::iterator it = vect.begin();
-       it != vect.end(); ++it) {
-    sum += *it;
+  for (int i = 0; i < problem_size; i++) {
+    sum += vect[i];
   }
 
   std::chrono::time_point<std::chrono::high_resolution_clock> end_time =

@@ -12,3 +12,7 @@
     #+begin_src bash
       mkdir build;cd build;cmake ../ -DCMAKE_CXX_FLAGS_RELEASE="-O0";make
     #+end_src
+  - All in one command
+    #+begin_src bash
+rm -rf build && mkdir build && cd build/ && cmake ../ && make && bash ../runsum.in > opt.log 2>&1
+    #+end_src
