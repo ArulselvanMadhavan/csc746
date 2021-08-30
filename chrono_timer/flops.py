@@ -48,8 +48,9 @@ def calculate_peak_flop(flops):
     max_index = flops.index(max_flop)
     return max_index, max_flop/THEORETICAL_PEAK_FLOP
 
+# Check if this is right
 def bytes_accessed(problem_size):
-    return [16, (8)+(8*problem_size),8+(2*8*problem_size)]
+    return [16*problem_size, (24*problem_size),(36*problem_size)]
 
 def calculate_peak_bandwidth(bws):
     max_bw = max(bws)
