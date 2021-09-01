@@ -53,10 +53,11 @@ def calculate_peak_flop(flops):
     return max_index, max_flop/THEORETICAL_PEAK_FLOP
 
 def number_of_accesses(problem_size):
-    return [problem_size, 2*problem_size, 4*problem_size]
+    return [2, problem_size, 2*problem_size]
+
 # Check if this is right
 def bytes_accessed(problem_size):
-    return [12*problem_size, (16*problem_size),(8+8+4+8)*problem_size]
+    return [16, (4+4+8)+(8*problem_size),(8+4+4+4)+(2*8*problem_size)]
 
 def calculate_peak_bandwidth(bws):
     max_bw = max(bws)
@@ -140,28 +141,32 @@ def extract_l(result):
     _,_,l = result
     return [(number_of_accesses(ps), entries)for ps,entries in l]
 
-def merge_rows(acc, l_r, r_r):
+def merge_rows(acc, l_el, r_el, l_r, r_r):
     row = []
     for i in range(1,len(acc)):
-        row.append(acc[i])
+        row.append(acc[i]/l_el[i])
         row.append(l_r[i])
+        row.append(acc[i]/r_el[i])
         row.append(r_r[i])
     return row
 
-def print_latency_rows(l_rows, r_rows):
-    print(r_rows)
+def print_latency_rows(l_el, r_el, l_rows, r_rows):
     for i in range(len(l_rows)):
         acc, l_row = l_rows[i]
         _, r_row = r_rows[i]
-        row = merge_rows(acc, l_row, r_row)
+        _, l_e = l_el[i]
+        _, r_e = r_el[i]
+        row = merge_rows(acc, l_e, r_e, l_row, r_row)
         print(print_row_sub(row))
     
-def print_acc_vs_latency(results):
+def print_acc_vs_latency(elapsed, results):
     l_entries = [extract_l(result) for result in results]
     for i in range(len(l_entries)-1):
+        l_el = elapsed[i]
+        r_el = elapsed[i+1]
         l_rows = l_entries[i]   # O0
         r_rows = l_entries[i+1]   # O3
-        print_latency_rows(l_rows, r_rows)
+        print_latency_rows(l_el, r_el, l_rows, r_rows)
 
 PLOT_FILENAMES = ["nm.csv", "sm.csv", "um.csv"]
 
@@ -235,9 +240,9 @@ if __name__ == "__main__":
 
     # print_latex_row(result)
     # print_bw_stats(result)
-    # print_acc_vs_latency(result)
-    produce_plot_data(elapsed)
-    produce_plots()
+    print_acc_vs_latency(elapsed, result)
+    # produce_plot_data(elapsed)
+    # produce_plots()
         # bytes accessed / elapsed time = bytes/sec = bandwidth used
         # What % of peak bandwidth are you using?
         # Elapsed time / # accesses = average latency

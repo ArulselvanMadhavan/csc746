@@ -1,0 +1,95 @@
+Running -O3 level optimization with input
+No mem
+Problem size value = 100000
+ Sum is: 4999950000 
+ Elapsed time is : 0.000820976 
+Structured mem
+srun: Job 46323226 step creation temporarily disabled, retrying (Requested nodes are busy)
+srun: Step created for job 46323226
+Problem size value = 100000
+ Sum is: 4999950000 
+ Elapsed time is : 0.00207109 
+unstructured mem
+Problem size value = 100000
+ Sum is: 5203693936 
+ Elapsed time is : 0.00227238 
+No mem
+Problem size value = 500000
+ Sum is: 124999750000 
+ Elapsed time is : 0.00424807 
+Structured mem
+srun: Job 46323226 step creation temporarily disabled, retrying (Requested nodes are busy)
+srun: Step created for job 46323226
+Problem size value = 500000
+ Sum is: 124999750000 
+ Elapsed time is : 0.0104481 
+unstructured mem
+Problem size value = 500000
+ Sum is: 125828203194 
+ Elapsed time is : 0.0188213 
+No mem
+Problem size value = 1000000
+ Sum is: 499999500000 
+ Elapsed time is : 0.00807948 
+Structured mem
+Problem size value = 1000000
+ Sum is: 499999500000 
+ Elapsed time is : 0.0209625 
+unstructured mem
+Problem size value = 1000000
+ Sum is: 521326800073 
+ Elapsed time is : 0.0216152 
+No mem
+Problem size value = 5000000
+ Sum is: 12499997500000 
+ Elapsed time is : 0.0406251 
+Structured mem
+Problem size value = 5000000
+ Sum is: 12499997500000 
+ Elapsed time is : 0.104844 
+unstructured mem
+Problem size value = 5000000
+ Sum is: 12143582573296 
+ Elapsed time is : 0.241434 
+No mem
+Problem size value = 10000000
+ Sum is: 49999995000000 
+ Elapsed time is : 0.0818015 
+Structured mem
+Problem size value = 10000000
+ Sum is: 49999995000000 
+ Elapsed time is : 0.209122 
+unstructured mem
+srun: Job 46323226 step creation temporarily disabled, retrying (Requested nodes are busy)
+srun: Step created for job 46323226
+Problem size value = 10000000
+ Sum is: 49827515045109 
+ Elapsed time is : 1.05049 
+No mem
+srun: Job 46323226 step creation temporarily disabled, retrying (Requested nodes are busy)
+srun: Step created for job 46323226
+Problem size value = 50000000
+ Sum is: 1249999975000000 
+ Elapsed time is : 0.409992 
+Structured mem
+srun: Job 46323226 step creation temporarily disabled, retrying (Requested nodes are busy)
+srun: Step created for job 46323226
+Problem size value = 50000000
+ Sum is: 1249999975000000 
+ Elapsed time is : 1.04553 
+unstructured mem
+Problem size value = 50000000
+ Sum is: 1257775058827278 
+ Elapsed time is : 6.02305 
+No mem
+Problem size value = 100000000
+ Sum is: 4999999950000000 
+ Elapsed time is : 0.813487 
+Structured mem
+Problem size value = 100000000
+ Sum is: 4999999950000000 
+ Elapsed time is : 2.09184 
+unstructured mem
+Problem size value = 100000000
+ Sum is: 4835553751563585 
+ Elapsed time is : 6.74481 

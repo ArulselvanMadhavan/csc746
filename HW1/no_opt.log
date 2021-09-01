@@ -2,88 +2,86 @@ Running -O3 level optimization with input
 No mem
 Problem size value = 100000
  Sum is: 4999950000 
- Elapsed time is : 0.000827308 
+ Elapsed time is : 0.000825996 
 Structured mem
-srun: Job 46202079 step creation temporarily disabled, retrying (Requested nodes are busy)
-srun: Step created for job 46202079
 Problem size value = 100000
  Sum is: 4999950000 
- Elapsed time is : 0.0020772 
+ Elapsed time is : 0.00207296 
 unstructured mem
 Problem size value = 100000
- Sum is: 4872289591 
- Elapsed time is : 0.00218748 
+ Sum is: 1653812986 
+ Elapsed time is : 0.00217929 
 No mem
 Problem size value = 500000
  Sum is: 124999750000 
- Elapsed time is : 0.00402467 
+ Elapsed time is : 0.00404003 
 Structured mem
 Problem size value = 500000
  Sum is: 124999750000 
- Elapsed time is : 0.0104445 
+ Elapsed time is : 0.0104962 
 unstructured mem
 Problem size value = 500000
- Sum is: 121562759892 
- Elapsed time is : 0.0180841 
+ Sum is: 121141137505 
+ Elapsed time is : 0.0110339 
 No mem
 Problem size value = 1000000
  Sum is: 499999500000 
- Elapsed time is : 0.00805192 
+ Elapsed time is : 0.00806639 
 Structured mem
 Problem size value = 1000000
  Sum is: 499999500000 
- Elapsed time is : 0.0209963 
+ Elapsed time is : 0.0210295 
 unstructured mem
 Problem size value = 1000000
- Sum is: 502458688958 
- Elapsed time is : 0.0419267 
+ Sum is: 488652044945 
+ Elapsed time is : 0.0402557 
 No mem
 Problem size value = 5000000
  Sum is: 12499997500000 
- Elapsed time is : 0.0410282 
+ Elapsed time is : 0.0410677 
 Structured mem
 Problem size value = 5000000
  Sum is: 12499997500000 
- Elapsed time is : 0.104605 
+ Elapsed time is : 0.104616 
 unstructured mem
 Problem size value = 5000000
- Sum is: 12845975032386 
- Elapsed time is : 0.239139 
+ Sum is: 12411124731027 
+ Elapsed time is : 0.282357 
 No mem
 Problem size value = 10000000
  Sum is: 49999995000000 
- Elapsed time is : 0.0813802 
+ Elapsed time is : 0.0815988 
 Structured mem
 Problem size value = 10000000
  Sum is: 49999995000000 
- Elapsed time is : 0.209331 
+ Elapsed time is : 0.209294 
 unstructured mem
 Problem size value = 10000000
- Sum is: 48848580103673 
- Elapsed time is : 0.535595 
+ Sum is: 50711292244894 
+ Elapsed time is : 0.521316 
 No mem
 Problem size value = 50000000
  Sum is: 1249999975000000 
- Elapsed time is : 0.408663 
+ Elapsed time is : 0.409591 
 Structured mem
 Problem size value = 50000000
  Sum is: 1249999975000000 
- Elapsed time is : 1.04623 
+ Elapsed time is : 1.04568 
 unstructured mem
 Problem size value = 50000000
- Sum is: 1236249565750884 
- Elapsed time is : 6.15166 
+ Sum is: 1213917024797849 
+ Elapsed time is : 3.32009 
 No mem
-srun: Job 46202079 step creation temporarily disabled, retrying (Requested nodes are busy)
-srun: Step created for job 46202079
 Problem size value = 100000000
  Sum is: 4999999950000000 
- Elapsed time is : 0.81481 
+ Elapsed time is : 0.814463 
 Structured mem
 Problem size value = 100000000
  Sum is: 4999999950000000 
- Elapsed time is : 2.09316 
+ Elapsed time is : 2.09173 
 unstructured mem
+srun: Job 46323226 step creation temporarily disabled, retrying (Requested nodes are busy)
+srun: Step created for job 46323226
 Problem size value = 100000000
- Sum is: 4921890360447076 
- Elapsed time is : 24.7633 
+ Sum is: 4940693242887924 
+ Elapsed time is : 31.7333 
