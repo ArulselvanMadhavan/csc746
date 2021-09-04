@@ -107,7 +107,7 @@ def get_stats(filename):
         elapsed = []
         for el_time in ms:
             elapsed.append(el_time)
-            flops.append(ps/el_time)
+            flops.append((3*ps)/el_time)
         print("FLOPS:", ps, ",".join([SCIENTIFIC_NOTATION_FORMAT.format(f) for f in flops]))
         flops_rows.append((ps, flops))
         elapsed_time.append((ps, elapsed))
@@ -238,9 +238,9 @@ if __name__ == "__main__":
         result.append((f,b,l))
         elapsed.append(e)
 
-    # print_latex_row(result)
+    print_latex_row(result)
     # print_bw_stats(result)
-    print_acc_vs_latency(elapsed, result)
+    # print_acc_vs_latency(elapsed, result)
     # produce_plot_data(elapsed)
     # produce_plots()
         # bytes accessed / elapsed time = bytes/sec = bandwidth used

@@ -1,7 +1,8 @@
-
-cmake_minimum_required( VERSION 3.5)
+cmake_minimum_required(VERSION 3.5)
 
 project (chrono_timer LANGUAGES CXX)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_CXX_FLAGS "-Wall")  # uncomment this line to turn on compiler warnings

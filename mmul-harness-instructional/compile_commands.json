@@ -1,0 +1,27 @@
+[
+{
+  "directory": "/Users/arul.madhavan/dev/csc746/mmul-harness-instructional/build",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/g++   -I /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/Headers/ -O3 -DNDEBUG -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk -mmacosx-version-min=11.2 -std=gnu++11 -o CMakeFiles/benchmark.dir/benchmark.cpp.o -c /Users/arul.madhavan/dev/csc746/mmul-harness-instructional/benchmark.cpp",
+  "file": "/Users/arul.madhavan/dev/csc746/mmul-harness-instructional/benchmark.cpp"
+},
+{
+  "directory": "/Users/arul.madhavan/dev/csc746/mmul-harness-instructional/build",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/g++   -I /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/Headers/ -O3 -DNDEBUG -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk -mmacosx-version-min=11.2 -Wall -pedantic -march=native -o CMakeFiles/benchmark-blas.dir/dgemm-blas.cpp.o -c /Users/arul.madhavan/dev/csc746/mmul-harness-instructional/dgemm-blas.cpp",
+  "file": "/Users/arul.madhavan/dev/csc746/mmul-harness-instructional/dgemm-blas.cpp"
+},
+{
+  "directory": "/Users/arul.madhavan/dev/csc746/mmul-harness-instructional/build",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/g++ -DBLOCKED  -I /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/Headers/ -O3 -DNDEBUG -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk -mmacosx-version-min=11.2 -std=gnu++11 -o CMakeFiles/bench-blocked.dir/benchmark.cpp.o -c /Users/arul.madhavan/dev/csc746/mmul-harness-instructional/benchmark.cpp",
+  "file": "/Users/arul.madhavan/dev/csc746/mmul-harness-instructional/benchmark.cpp"
+},
+{
+  "directory": "/Users/arul.madhavan/dev/csc746/mmul-harness-instructional/build",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/g++   -I /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/Headers/ -O3 -DNDEBUG -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk -mmacosx-version-min=11.2 -Wall -pedantic -march=native -o CMakeFiles/benchmark-blocked.dir/dgemm-blocked.cpp.o -c /Users/arul.madhavan/dev/csc746/mmul-harness-instructional/dgemm-blocked.cpp",
+  "file": "/Users/arul.madhavan/dev/csc746/mmul-harness-instructional/dgemm-blocked.cpp"
+},
+{
+  "directory": "/Users/arul.madhavan/dev/csc746/mmul-harness-instructional/build",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/g++   -I /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/Headers/ -O3 -DNDEBUG -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk -mmacosx-version-min=11.2 -Wall -pedantic -march=native -o CMakeFiles/benchmark-basic.dir/dgemm-basic.cpp.o -c /Users/arul.madhavan/dev/csc746/mmul-harness-instructional/dgemm-basic.cpp",
+  "file": "/Users/arul.madhavan/dev/csc746/mmul-harness-instructional/dgemm-basic.cpp"
+}
+]

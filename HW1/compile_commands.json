@@ -1,0 +1,17 @@
+[
+{
+  "directory": "/Users/arul.madhavan/dev/csc746/HW1/build",
+  "command": "/usr/local/opt/llvm/bin/clang++   -Wall -O3 -DNDEBUG -O0 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk -mmacosx-version-min=11.2 -o CMakeFiles/unstructured_mem.dir/unstructured_mem.cpp.o -c /Users/arul.madhavan/dev/csc746/HW1/unstructured_mem.cpp",
+  "file": "/Users/arul.madhavan/dev/csc746/HW1/unstructured_mem.cpp"
+},
+{
+  "directory": "/Users/arul.madhavan/dev/csc746/HW1/build",
+  "command": "/usr/local/opt/llvm/bin/clang++   -Wall -O3 -DNDEBUG -O0 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk -mmacosx-version-min=11.2 -o CMakeFiles/structured_mem.dir/structured_mem.cpp.o -c /Users/arul.madhavan/dev/csc746/HW1/structured_mem.cpp",
+  "file": "/Users/arul.madhavan/dev/csc746/HW1/structured_mem.cpp"
+},
+{
+  "directory": "/Users/arul.madhavan/dev/csc746/HW1/build",
+  "command": "/usr/local/opt/llvm/bin/clang++   -Wall -O3 -DNDEBUG -O0 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk -mmacosx-version-min=11.2 -o CMakeFiles/no_mem.dir/no_mem.cpp.o -c /Users/arul.madhavan/dev/csc746/HW1/no_mem.cpp",
+  "file": "/Users/arul.madhavan/dev/csc746/HW1/no_mem.cpp"
+}
+]

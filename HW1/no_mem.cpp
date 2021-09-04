@@ -26,7 +26,7 @@ int main(int ac, char *av[]) {
   for (int i = 0; i < problem_size; i++) {
     sum += i;
   }
-
+  
   std::chrono::time_point<std::chrono::high_resolution_clock> end_time =
       std::chrono::high_resolution_clock::now();
 
