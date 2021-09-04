@@ -98,10 +98,20 @@ int main(int argc, char **argv) {
 #endif
       std::chrono::time_point<std::chrono::high_resolution_clock> end_time =
           std::chrono::high_resolution_clock::now();
+      std::chrono::duration<double> elapsed = end_time - start_time;
+      std::cout << " My Elapsed time is : " << elapsed.count() << " "
+                << std::endl;
+
       // insert timer code here
+      std::chrono::time_point<std::chrono::high_resolution_clock> r_start_time =
+          std::chrono::high_resolution_clock::now();
 
       reference_dgemm(n, 1.0, Acopy, Bcopy, Ccopy);
-
+      std::chrono::time_point<std::chrono::high_resolution_clock> r_end_time =
+          std::chrono::high_resolution_clock::now();
+      std::chrono::duration<double> r_elapsed = r_end_time - r_start_time;
+      std::cout << " Ref Elapsed time is : " << r_elapsed.count() << " "
+                << std::endl;
       // compare your C with that computed by BLAS
       if (check_accuracy(Ccopy, C, n * n) == false)
         printf(
