@@ -26,6 +26,13 @@ target_compile_options(benchmark-basic PRIVATE -Wall -pedantic -march=native)
 set(BENCHMARK "basic")
 configure_file(job.in job-${BENCHMARK})
 
+add_executable(benchmark-basic-copy dgemm-basic-copy.cpp)
+target_link_libraries(benchmark-basic-copy PRIVATE benchmark ${BLAS_LIBRARIES})
+target_compile_features(benchmark-basic-copy PRIVATE c_std_11 c_restrict)
+target_compile_options(benchmark-basic-copy PRIVATE -Wall -pedantic -march=native)
+set(BENCHMARK "basic-copy")
+configure_file(job.in job-${BENCHMARK})
+
 add_executable(benchmark-blas dgemm-blas.cpp)
 target_link_libraries(benchmark-blas PRIVATE benchmark ${BLAS_LIBRARIES})
 target_compile_features(benchmark-blas PRIVATE c_std_11 c_restrict)
