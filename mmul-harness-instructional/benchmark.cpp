@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
         printf(
             " Error: your answer is not the same as that computed by BLAS. \n");
       } else
-        std::printf("Result matched BLAS");
+        std::printf("Result matched BLAS.\n");
 
 #ifdef BLOCKED
     } // end loop over block sizes
