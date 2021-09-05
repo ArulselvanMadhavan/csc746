@@ -35,6 +35,7 @@ void fill(double *p, int n) {
   static std::uniform_real_distribution<> dis(-1.0, 1.0);
   for (int i = 0; i < n; ++i) {
     p[i] = 2 * dis(gen) - 1; // Why?
+    // p[i] = i;
   }
 }
 
@@ -113,10 +114,13 @@ int main(int argc, char **argv) {
       std::cout << " Ref Elapsed time is : " << r_elapsed.count() << " "
                 << std::endl;
       // compare your C with that computed by BLAS
-      if (check_accuracy(Ccopy, C, n * n) == false)
+      if (check_accuracy(Ccopy, C, n * n) == false) {
+        std::cout << *C << "\n";
+        std::cout << *Ccopy << "\n";
+
         printf(
             " Error: your answer is not the same as that computed by BLAS. \n");
-      else
+      } else
         std::printf("Result matched BLAS");
 
 #ifdef BLOCKED
