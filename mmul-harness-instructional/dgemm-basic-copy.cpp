@@ -33,11 +33,12 @@ void square_dgemm(int n, double *A, double *B, double *C) {
   for (int row_id = 0; row_id < n; row_id++) {
     copy_row(A, row_buf.data(), row_id, n);
     for (int col_id = 0; col_id < n; col_id++) {
-      double c_out = 0;
+      int out_idx = vec_idx(row_id, col_id, n);
+      double c_out = C[out_idx];
       for (int k = 0; k < n; k++) {
         c_out = c_out + (row_buf[k] * B[(n * col_id) + k]);
       }
-      C[vec_idx(row_id, col_id, n)] = c_out;
+      C[out_idx] = c_out;
     }
   }
 }
