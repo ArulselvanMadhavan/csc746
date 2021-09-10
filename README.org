@@ -16,3 +16,7 @@
     #+begin_src bash
 rm -rf build && mkdir build && cd build/ && cmake ../ && make && bash ../runsum.in > opt.log 2>&1
     #+end_src
+  - Done
+    #+begin_src bash
+rm -rf build && mkdir build && cd build && cmake ../ -DBLAS_LIBRARIES=/usr/lib64/libblas.so && make
+    #+end_src

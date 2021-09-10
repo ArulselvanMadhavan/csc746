@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
       // load up matrics with some random numbers
       fill(A, n * n);
       fill(B, n * n);
-      // fill(C, n * n);
+      fill(C, n * n);
 
       // make copies of A, B, C for use in verification of results
       memcpy((void *)Acopy, (const void *)A, sizeof(double) * n * n);

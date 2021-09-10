@@ -4,6 +4,10 @@ project(hw2 LANGUAGES C CXX)
 set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+find_path(BLAS_INCLUDE_DIRS cblas.h
+  /usr/include
+  /usr/local/include
+  $ENV{BLAS_HOME}/include)
 find_package(BLAS REQUIRED)
 
 # We require the GNU compiler for this assignment.

@@ -53,11 +53,11 @@ def calculate_peak_flop(flops):
     return max_index, max_flop/THEORETICAL_PEAK_FLOP
 
 def number_of_accesses(problem_size):
-    return [2, problem_size, 2*problem_size]
+    return [5*problem_size, 6*problem_size, 9*problem_size]
 
 # Check if this is right
 def bytes_accessed(problem_size):
-    return [16, (4+4+8)+(8*problem_size),(8+4+4+4)+(2*8*problem_size)]
+    return [((16+12)*problem_size), ((24+12)*problem_size),((36+16)*problem_size)]
 
 def calculate_peak_bandwidth(bws):
     max_bw = max(bws)
@@ -239,10 +239,10 @@ if __name__ == "__main__":
         elapsed.append(e)
 
     print_latex_row(result)
-    # print_bw_stats(result)
-    # print_acc_vs_latency(elapsed, result)
-    # produce_plot_data(elapsed)
-    # produce_plots()
+    print_bw_stats(result)
+    print_acc_vs_latency(elapsed, result)
+    produce_plot_data(elapsed)
+    produce_plots()
         # bytes accessed / elapsed time = bytes/sec = bandwidth used
         # What % of peak bandwidth are you using?
         # Elapsed time / # accesses = average latency
