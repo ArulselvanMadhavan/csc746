@@ -1,0 +1,104 @@
+Description:	Blocked dgemm.
+
+Working on problem size N=64 
+Blocked DGEMM 
+ My Elapsed time is : 0.01 
+ Ref Elapsed time is : 0.14 
+Result matched BLAS.
+ My Elapsed time is : 0.00 
+ Ref Elapsed time is : 0.00 
+Result matched BLAS.
+ My Elapsed time is : 0.00 
+ Ref Elapsed time is : 0.00 
+Result matched BLAS.
+ My Elapsed time is : 0.00 
+ Ref Elapsed time is : 0.00 
+Result matched BLAS.
+ My Elapsed time is : 0.00 
+ Ref Elapsed time is : 0.00 
+Result matched BLAS.
+Working on problem size N=128 
+Blocked DGEMM 
+ My Elapsed time is : 0.06 
+ Ref Elapsed time is : 0.00 
+Result matched BLAS.
+ My Elapsed time is : 0.01 
+ Ref Elapsed time is : 0.00 
+Result matched BLAS.
+ My Elapsed time is : 0.01 
+ Ref Elapsed time is : 0.00 
+Result matched BLAS.
+ My Elapsed time is : 0.01 
+ Ref Elapsed time is : 0.00 
+Result matched BLAS.
+ My Elapsed time is : 0.01 
+ Ref Elapsed time is : 0.00 
+Result matched BLAS.
+Working on problem size N=256 
+Blocked DGEMM 
+ My Elapsed time is : 0.48 
+ Ref Elapsed time is : 0.00 
+Result matched BLAS.
+ My Elapsed time is : 0.09 
+ Ref Elapsed time is : 0.00 
+Result matched BLAS.
+ My Elapsed time is : 0.06 
+ Ref Elapsed time is : 0.00 
+Result matched BLAS.
+ My Elapsed time is : 0.08 
+ Ref Elapsed time is : 0.00 
+Result matched BLAS.
+ My Elapsed time is : 0.08 
+ Ref Elapsed time is : 0.00 
+Result matched BLAS.
+Working on problem size N=512 
+Blocked DGEMM 
+ My Elapsed time is : 8.57 
+ Ref Elapsed time is : 0.01 
+Result matched BLAS.
+ My Elapsed time is : 1.01 
+ Ref Elapsed time is : 0.01 
+Result matched BLAS.
+ My Elapsed time is : 0.58 
+ Ref Elapsed time is : 0.01 
+Result matched BLAS.
+ My Elapsed time is : 0.69 
+ Ref Elapsed time is : 0.01 
+Result matched BLAS.
+ My Elapsed time is : 0.64 
+ Ref Elapsed time is : 0.01 
+Result matched BLAS.
+Working on problem size N=1024 
+Blocked DGEMM 
+ My Elapsed time is : 68.51 
+ Ref Elapsed time is : 0.08 
+Result matched BLAS.
+ My Elapsed time is : 8.17 
+ Ref Elapsed time is : 0.08 
+Result matched BLAS.
+ My Elapsed time is : 4.67 
+ Ref Elapsed time is : 0.08 
+Result matched BLAS.
+ My Elapsed time is : 5.52 
+ Ref Elapsed time is : 0.08 
+Result matched BLAS.
+ My Elapsed time is : 5.14 
+ Ref Elapsed time is : 0.08 
+Result matched BLAS.
+Working on problem size N=2048 
+Blocked DGEMM 
+ My Elapsed time is : 547.52 
+ Ref Elapsed time is : 0.63 
+Result matched BLAS.
+ My Elapsed time is : 65.39 
+ Ref Elapsed time is : 0.63 
+Result matched BLAS.
+ My Elapsed time is : 37.41 
+ Ref Elapsed time is : 0.63 
+Result matched BLAS.
+ My Elapsed time is : 44.23 
+ Ref Elapsed time is : 0.63 
+Result matched BLAS.
+ My Elapsed time is : 41.24 
+ Ref Elapsed time is : 0.63 
+Result matched BLAS.

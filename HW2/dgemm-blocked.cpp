@@ -69,23 +69,23 @@ void square_dgemm_blocked(int n, int block_size, double *A, double *B,
     for (int j = 0; j < Nb; j++) {
 
       int cpos = get_start(i, j, block_size, n);
-      copy_block(cpos, C, CC, block_size, n);
+      copy_block(cpos, C, CC, block_size, n); // Nb^2
       for (int k = 0; k < Nb; k++) {
         int apos = get_start(i, k, block_size, n);
         int bpos = get_start(k, j, block_size, n);
-        // std::cout << apos << "\t" << bpos << "\n";
-        copy_block(apos, A, AA, block_size, n);
-        copy_block(bpos, B, BB, block_size, n);
+
+        copy_block(apos, A, AA, block_size, n); // Nb^3
+        copy_block(bpos, B, BB, block_size, n); // Nb^3
 
         // Basic matrix mul on block
         for (int row_id = 0; row_id < block_size; row_id++) {
           for (int col_id = 0; col_id < block_size; col_id++) {
-            int out_idx = vec_idx(row_id, col_id, block_size);
+            int out_idx = vec_idx(row_id, col_id, block_size); // 2*Nb^3*b^2
             double c_cout = CC[out_idx];
             for (int m = 0; m < block_size; m++) {
-              int left_idx = vec_idx(row_id, m, block_size);
-              int right_idx = col_iter(col_id, m, block_size);
-              c_cout = c_cout + (AA[left_idx] * BB[right_idx]);
+              int left_idx = vec_idx(row_id, m, block_size); // 2*Nb^3*b^3
+              int right_idx = col_iter(col_id, m, block_size); // 2*Nb^3*b^3
+              c_cout = c_cout + (AA[left_idx] * BB[right_idx]); // 2*Nb^3*b^3
             }
             CC[out_idx] = c_cout;
           }
@@ -96,3 +96,7 @@ void square_dgemm_blocked(int n, int block_size, double *A, double *B,
     }
   }
 }
+
+// f = 2*Nb^3*b^2 + 6*Nb^3*b^3 = 2*Nb*n^2+6n^3 = 2*n^3/b + 6n^3
+// m = 2*Nb*n^2 + 2n^2
+// CI = f/m = (2*Nb+6n)/2*Nb+2n = Nb+3n/Nb+1 ~ 3(n/Nb)

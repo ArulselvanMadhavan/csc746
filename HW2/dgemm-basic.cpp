@@ -26,3 +26,7 @@ void square_dgemm(int n, double *A, double *B, double *C) {
     }
   }
 }
+
+// f = (2+2+2)*n^3+2*n^2
+// m = N^2 + N^3 + N^3 = 2N^3+n^2
+// CI = f/m = (6*n^3+2*n^2)/2n^3 + n^2 = 6n+2/2n+1 = 3n+1/n+0.5 = 3

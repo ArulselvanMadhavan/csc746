@@ -29,7 +29,6 @@ void copy_col(double *src, double *dest, int c, int n) {
 void square_dgemm(int n, double *A, double *B, double *C) {
   // insert your code here: implementation of basic matrix multiple
   std::vector<double> row_buf(n);
-  std::vector<double> col_buf(n);
   for (int row_id = 0; row_id < n; row_id++) {
     copy_row(A, row_buf.data(), row_id, n);
     for (int col_id = 0; col_id < n; col_id++) {
@@ -42,3 +41,7 @@ void square_dgemm(int n, double *A, double *B, double *C) {
     }
   }
 }
+
+// f = 2n^2 + 4*n^3
+// m = n^2(A) + n^2(C) + n^3(B)
+// CI = f/m = 2+4n/2+n = 4

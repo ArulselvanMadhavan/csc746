@@ -2,25 +2,25 @@ Description:    Basic implementation, three-loop dgemm.
 
 Working on problem size N=64
  My Elapsed time is : 0.00
-CBlas Elapsed time is : 0.02
+ Ref Elapsed time is : 0.15
 Result matched BLAS.
 Working on problem size N=128
  My Elapsed time is : 0.01
-CBlas Elapsed time is : 0.01
+ Ref Elapsed time is : 0.00
 Result matched BLAS.
 Working on problem size N=256
  My Elapsed time is : 0.22
-CBlas Elapsed time is : 0.05
+ Ref Elapsed time is : 0.00
 Result matched BLAS.
 Working on problem size N=512
  My Elapsed time is : 3.31
-CBlas Elapsed time is : 0.41
+ Ref Elapsed time is : 0.01
 Result matched BLAS.
 Working on problem size N=1024
- My Elapsed time is : 26.72
-CBlas Elapsed time is : 3.28
+ My Elapsed time is : 26.71
+ Ref Elapsed time is : 0.08
 Result matched BLAS.
 Working on problem size N=2048
- My Elapsed time is : 213.73
-CBlas Elapsed time is : 26.15
+ My Elapsed time is : 213.71
+ Ref Elapsed time is : 0.63
 Result matched BLAS.

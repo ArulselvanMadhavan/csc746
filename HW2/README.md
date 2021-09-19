@@ -1,3 +1,16 @@
+# Instructions to run the code
+```bash
+# For running locally
+rm -rf build;mkdir build;cd build;cmake ../;make;./benchmark-basic
+rm -rf build;mkdir build;cd build;cmake ../;make;./benchmark-basic-copy
+rm -rf build;mkdir build;cd build;cmake ../;make;./blocked
+
+# For running on Cori
+rm -rf build;mkdir build;cd build;cmake ../;make;bash job-basic
+rm -rf build;mkdir build;cd build;cmake ../;make;bash job-basic-copy
+rm -rf build;mkdir build;cd build;cmake ../;make;bash job-blocked
+```
+
 # mmul instructional test harness
 
 This directory contains a benchmark harness for testing different implementations of
