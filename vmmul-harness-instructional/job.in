@@ -32,9 +32,19 @@ export OMP_PROC_BIND=spread
 # export OMP_SCHEDULE=static
 # export OMP_SCHEDULE=dynamic
 
-for t in 1 2 4
-   do
-   export OMP_NUM_THREADS=$t
-   srun -n 1 --cpu-bind=threads ./benchmark-@BENCHMARK@
-done
 
+me=`basename "$0"`
+if [ "$me" = "job-openmp" ];
+then
+    for s in "static" "dynamic"
+    do
+        export OMP_SCHEDULE=$s
+        for t in 1 2 4 8 16 32 64 272
+        do
+            export OMP_NUM_THREADS=$t
+            srun -n 1 ./benchmark-@BENCHMARK@
+        done
+    done
+else
+    srun -n 1 ./benchmark-@BENCHMARK@
+fi

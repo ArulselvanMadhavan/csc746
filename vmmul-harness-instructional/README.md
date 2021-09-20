@@ -79,5 +79,9 @@ to these scripts for your particular testing workflow.
 These sample job scripts have some reference values and tips for managing OpenMP-related
 environment variables that are relevant to HW3 and Cori@NERSC.
 
-
+- module load cmake
+- module swap PrgEnv-intel PrgEnv-gnu
+- export OMP_DISPLAY_ENV=true
+- REadme.md - https://docs.nersc.gov/jobs/affinity/#slurm-cpu-bind-flag
+- export OMP_DISPLAY_ENV="TRUE"
 #eof

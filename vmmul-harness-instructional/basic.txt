@@ -1,0 +1,17 @@
+Description:	Basic implementation of matrix-vector multiply.
+
+Working on problem size N=1024	Threads=(null)	Schedule=(null)
+ My Elapsed time is : 0.00 
+ Ref Elapsed time is : 0.14 
+Working on problem size N=2048	Threads=(null)	Schedule=(null)
+ My Elapsed time is : 0.02 
+ Ref Elapsed time is : 0.00 
+Working on problem size N=4096	Threads=(null)	Schedule=(null)
+ My Elapsed time is : 0.07 
+ Ref Elapsed time is : 0.01 
+Working on problem size N=8192	Threads=(null)	Schedule=(null)
+ My Elapsed time is : 0.29 
+ Ref Elapsed time is : 0.06 
+Working on problem size N=16384	Threads=(null)	Schedule=(null)
+ My Elapsed time is : 1.16 
+ Ref Elapsed time is : 0.25 
