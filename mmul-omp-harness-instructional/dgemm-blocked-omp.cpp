@@ -1,46 +1,15 @@
-#include <iostream>
-#include <string.h>
-#include <stdlib.h>
-#include <omp.h>
 #include "vector"
+#include <iostream>
+#include <omp.h>
+#include <stdlib.h>
+#include <string.h>
 // #include <vector.h>
-// #include "likwid-stuff.h"
+#include "likwid-stuff.h"
 
-const char* dgemm_desc = "Blocked dgemm, OpenMP-enabled";
-
+const char *dgemm_desc = "Blocked dgemm, OpenMP-enabled";
 
 int get_start(int b_r, int b_c, int b, int n) {
   return (b_r * b) + ((b_c * b) * n);
-}
-
-int vec_idx(int r, int c, int n) { return (n * c) + r; }
-
-int col_iter(int col_id, int k, int n) { return (n * col_id) + k; }
-
-void copy_row(double *src, double *dest, int r, int n) {
-  for (int c = 0; c < n; c++) {
-    dest[c] = src[vec_idx(r, c, n)];
-  }
-}
-
-void copy_col(double *src, double *dest, int c, int n) {
-  for (int k = 0; k < n; k++) {
-    dest[k] = src[col_iter(c, k, n)];
-  }
-}
-void square_dgemm(int n, double *A, double *B, double *C) {
-  // insert your code here: implementation of basic matrix multiple
-  std::vector<double> row_buf(n);
-  for (int row_id = 0; row_id < n; row_id++) {
-    copy_row(A, row_buf.data(), row_id, n);
-    for (int col_id = 0; col_id < n; col_id++) {
-      double c_out = 0;
-      for (int k = 0; k < n; k++) {
-        c_out = c_out + (row_buf[k] * B[(n * col_id) + k]);
-      }
-      C[vec_idx(row_id, col_id, n)] = c_out;
-    }
-  }
 }
 
 void copy_block(int start, double *src, double *dest, int b, int n) {
@@ -59,16 +28,61 @@ void write_block(int start, double *src, double *dest, int b, int n) {
   }
 }
 
-/* This routine performs a dgemm operation
- *  C := C + A * B
- * where A, B, and C are n-by-n matrices stored in column-major format.
- * On exit, A and B maintain their input values. */
-void square_dgemm_blocked(int n, int block_size, double* A, double* B, double* C) 
-{
-   // insert your code here: implementation of blocked matrix multiply with copy optimization and OpenMP parallelism enabled
+int vec_idx(int r, int c, int n) { return (n * c) + r; }
 
-   // be sure to include LIKWID_MARKER_START(MY_MARKER_REGION_NAME) inside the block of parallel code,
-   // but before your matrix multiply code, and then include LIKWID_MARKER_STOP(MY_MARKER_REGION_NAME)
-   // after the matrix multiply code but before the end of the parallel code block.
-  
+int col_iter(int col_id, int k, int n) { return (n * col_id) + k; }
+
+void square_dgemm_blocked(int n, int block_size, double *A, double *B,
+                          double *C) {
+  int Nb = n / block_size;
+  int total_threads = omp_get_num_threads();
+  int bi, bj;
+#pragma omp parallel default(none) shared(                                     \
+    n, block_size, Nb, A, B, C, total_threads, std::cout) private(bi, bj)
+  {
+#ifdef LIKWID_PERFMON
+    LIKWID_MARKER_START(MY_MARKER_REGION_NAME);
+#endif
+
+    std::vector<double> block_buf(3 * block_size * block_size);
+    double *AA = block_buf.data() + 0;
+    double *BB = AA + block_size * block_size;
+    double *CC = BB + block_size * block_size;
+
+#pragma omp for collapse(2)
+    for (bi = 0; bi < Nb; bi++) {
+      for (bj = 0; bj < Nb; bj++) {
+        int cpos = get_start(bi, bj, block_size, n);
+        copy_block(cpos, C, CC, block_size, n);
+        for (int k = 0; k < Nb; k++) {
+          int apos = get_start(bi, k, block_size, n);
+          int bpos = get_start(k, bj, block_size, n);
+
+          copy_block(apos, A, AA, block_size, n); // Nb^3
+          copy_block(bpos, B, BB, block_size, n); // Nb^3
+                                                  // Basic matrix mul on block
+          for (int row_id = 0; row_id < block_size; row_id++) {
+            for (int col_id = 0; col_id < block_size; col_id++) {
+              int out_idx = vec_idx(row_id, col_id, block_size); // 2*Nb^3*b^2
+              double c_cout = CC[out_idx];
+              for (int m = 0; m < block_size; m++) {
+                int left_idx = vec_idx(row_id, m, block_size);    // 2*Nb^3*b^3
+                int right_idx = col_iter(col_id, m, block_size);  // 2*Nb^3*b^3
+                c_cout = c_cout + (AA[left_idx] * BB[right_idx]); // 2*Nb^3*b^3
+              }
+              CC[out_idx] = c_cout;
+            }
+          }
+        }
+        write_block(cpos, CC, C, block_size, n);
+#pragma omp critical
+        {
+          std::cout << omp_get_thread_num() << "\t" << AA << "\t" << BB << "\n";
+        }
+      }
+    }
+#ifdef LIKWID_PERFMON
+    LIKWID_MARKER_STOP(MY_MARKER_REGION_NAME);
+#endif
+  }
 }

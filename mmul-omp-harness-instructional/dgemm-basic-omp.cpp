@@ -32,22 +32,4 @@ void square_dgemm(int n, double *A, double *B, double *C) {
     LIKWID_MARKER_STOP(MY_MARKER_REGION_NAME);
 #endif
   }
-
-  //   int row_id, col_id;
-  // #pragma omp parallel for default(none) \
-//     shared(n, A, B, C, std::cout) private(row_id, col_id) collapse(2)
-  //   for (row_id = 0; row_id < n; row_id++) {
-  //     for (col_id = 0; col_id < n; col_id++) {
-  //       int out_idx = n * col_id + row_id;
-  //       int thread_id = omp_get_thread_num();
-  // #pragma omp critical
-  //       { std::cout << thread_id << "\t" << out_idx << "\n"; }
-  //       // for (int k = 0; k < n; k++) {
-
-  //       //   // int left_idx = vec_idx(row_id, k, n);
-  //       //   // int right_idx = col_iter(col_id, k, n);
-  //       //   // C[out_idx] = C[out_idx] + (A[left_idx] * B[right_idx]);
-  //       // }
-  //     }
-  //   }
 }
