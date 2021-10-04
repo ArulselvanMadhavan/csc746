@@ -134,4 +134,6 @@ cmake, look insize job-blocked-omp for more details.
 
 ## Instructions to run the code
 - module load cmake && module load likwid/5.2.0 && module swap PrgEnv-intel PrgEnv-gnu
+- salloc --nodes 1 --qos interactive --time 03:00:00 --constraint knl --account m3930 --perf=likwid
+- rm -rf build && mkdir build && cd build && cmake ../ -Wno-dev && make
 #eof

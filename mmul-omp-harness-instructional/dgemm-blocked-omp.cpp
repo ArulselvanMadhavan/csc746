@@ -1,4 +1,5 @@
 #include "vector"
+#include <cstring>
 #include <iostream>
 #include <omp.h>
 #include <stdlib.h>
@@ -13,18 +14,15 @@ int get_start(int b_r, int b_c, int b, int n) {
 }
 
 void copy_block(int start, double *src, double *dest, int b, int n) {
+
   for (int c = 0; c < b; c++) {
-    for (int r = 0; r < b; r++) {
-      dest[(c * b) + r] = src[start + (c * n) + r];
-    }
+    std::memcpy(dest + c * b, src + (start + (c * n)), b*sizeof(double));
   }
 }
 
 void write_block(int start, double *src, double *dest, int b, int n) {
   for (int c = 0; c < b; c++) {
-    for (int r = 0; r < b; r++) {
-      dest[start + (c * n) + r] = src[(c * b) + r];
-    }
+    std::memcpy(dest + start + (c * n), src + c * b, b * sizeof(double));
   }
 }
 
@@ -35,10 +33,9 @@ int col_iter(int col_id, int k, int n) { return (n * col_id) + k; }
 void square_dgemm_blocked(int n, int block_size, double *A, double *B,
                           double *C) {
   int Nb = n / block_size;
-  int total_threads = omp_get_num_threads();
   int bi, bj;
-#pragma omp parallel default(none) shared(                                     \
-    n, block_size, Nb, A, B, C, total_threads, std::cout) private(bi, bj)
+#pragma omp parallel default(none)                                             \
+    shared(n, block_size, Nb, A, B, C, std::cout) private(bi, bj)
   {
 #ifdef LIKWID_PERFMON
     LIKWID_MARKER_START(MY_MARKER_REGION_NAME);
@@ -75,10 +72,6 @@ void square_dgemm_blocked(int n, int block_size, double *A, double *B,
           }
         }
         write_block(cpos, CC, C, block_size, n);
-#pragma omp critical
-        {
-          std::cout << omp_get_thread_num() << "\t" << AA << "\t" << BB << "\n";
-        }
       }
     }
 #ifdef LIKWID_PERFMON
