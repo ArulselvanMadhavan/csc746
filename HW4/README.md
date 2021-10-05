@@ -1,3 +1,15 @@
+## Instructions to run the code
+- module load cmake && module load likwid/5.2.0 && module swap PrgEnv-intel PrgEnv-gnu
+- salloc --nodes 1 --qos interactive --time 03:00:00 --constraint knl --account m3930 --perf=likwid
+- rm -rf build && mkdir build && cd build && cmake ../ -Wno-dev && make
+- After making the edits described above
+- bash job-blas
+- bash job-basic
+- bash job-blocked
+- I also added -O -o output.csv to the srun line in job.in to collect LIKWID metrics as csv
+- Results were produced by running python results.py
+#eof
+
 # mmul-omp instructional test harness
 
 This directory contains a benchmark harness for testing different OpenMP-enabled parallel
@@ -136,4 +148,8 @@ cmake, look insize job-blocked-omp for more details.
 - module load cmake && module load likwid/5.2.0 && module swap PrgEnv-intel PrgEnv-gnu
 - salloc --nodes 1 --qos interactive --time 03:00:00 --constraint knl --account m3930 --perf=likwid
 - rm -rf build && mkdir build && cd build && cmake ../ -Wno-dev && make
+- After making the edits described above
+- bash job-blas
+- bash job-basic
+- bash job-blocked
 #eof

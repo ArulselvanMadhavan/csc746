@@ -86,9 +86,9 @@ def get_mcdram_read(cs, df):
     # 128,1
     ln, cn = -1, -1
     if cs == "0":
-        ln, cn = 61,1
+        ln, cn = 60,1
     else:
-        ln, cn = 128,1
+        ln, cn = 127,1
     return float(df.iloc[[ln]][cn])
 
 def tables(idx, mode_data):
@@ -103,7 +103,7 @@ def tables(idx, mode_data):
             runtime = get_runtime(cs[i], dfs[i])
             mcdram = get_mcdram_read(cs[i], dfs[i])
             ddr_read = get_ddr_read(cs[i],dfs[i])            
-            print(f"{rname} & {runtime} & {mcdram} & {ddr_read} & \\")
+            print(f"{rname} & {runtime} & {mcdram} & {ddr_read} & \\\\")
             
 def table2(idx, mode_data):
     for i in range(len(mode_data[0])):
@@ -116,7 +116,7 @@ def table2(idx, mode_data):
             runtime = get_runtime(cs[i], dfs[i])
             mcdram = get_mcdram_read(cs[i], dfs[i])
             ddr_read = get_ddr_read(cs[i],dfs[i])            
-            print(f"{rname} & {runtime} & {mcdram} & {ddr_read} & \\")        
+            print(f"{rname} & {runtime} & {mcdram} & {ddr_read} & \\\\")        
         
             
 def speedup(mode_data):
