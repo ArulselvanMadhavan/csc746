@@ -20,3 +20,11 @@ rm -rf build && mkdir build && cd build/ && cmake ../ && make && bash ../runsum.
     #+begin_src bash
 rm -rf build && mkdir build && cd build && cmake ../ -DBLAS_LIBRARIES=/usr/lib64/libblas.so && make
     #+end_src
+* OpenMP
+  #+BEGIN_SRC bash
+  export LD_LIBRARY_PATH="$HOME/.local/lib/:$LD_LIBRARY_PATH"
+  #+END_SRC
+* OMP device offloading
+  #+BEGIN_SRC bash
+  https://gist.github.com/anjohan/9ee746295ea1a00d9ca69415f40fafc9
+  #+END_SRC
