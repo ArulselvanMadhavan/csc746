@@ -1,0 +1,53 @@
+  // off_t padded_n = padded_dims[0] * padded_dims[1];
+  // off_t nvalues = dims[0] * dims[1];
+  // std::vector<float> out_vec = std::vector<float>(padded_n);
+  // std::vector<float> in_vec = std::vector<float>(padded_n);
+  // for (int i = 0; i < padded_n; i++) {
+  //   out_vec[i] = 1.0f;
+  //   in_vec.at(i) = 0.0f;
+  // }
+  // int halfPad = paddingWidth / 2;
+  // for (int y = halfPad; y < padded_dims[1] - halfPad; y++) {
+  //   for (int x = halfPad; x < padded_dims[0] - halfPad; x++) {
+  //     int outIdx = y * padded_dims[0] + x;
+  //     int y_in = y - halfPad;
+  //     int x_in = x - halfPad;
+  //     in_vec[outIdx] = in[y_in * dims[0] + x_in];
+  //   }
+  // }
+  // std::cout << "Finished filling up" << std::endl;
+  // for (int y = halfPad; y < padded_dims[1] - halfPad; y++) {
+  //   for (int x = halfPad; x < padded_dims[0] - halfPad; x++) {
+  //     int outIdx = y * padded_dims[0] + x;
+  //     // sobel pixel func
+  //     int gi = 0;
+  //     float sum = 0.0;
+  //     for (int ky = -1; ky < 2; ky++) {
+  //       for (int kx = -1; kx < 2; kx++) {
+  //         int cxIdx = x + kx;
+  //         int cyIdx = y + ky;
+  //         int cyPos = cyIdx * padded_dims[0];
+  //         int cxy = cyPos + cxIdx;
+  //         float sxy = in_vec.at(cxy);
+  //         float gxtemp = Gx[gi] * sxy;
+  //         float gytemp = Gy[gi] * sxy;
+  //         float gxSq = gxtemp * gxtemp;
+  //         float gySq = gytemp * gytemp;
+  //         sum += gxSq + gySq;
+  //         gi++;
+  //       }
+  //     }
+
+  //     // out_vec[outIdx] = in_vec[outIdx];
+  //     out_vec[outIdx] = sqrt(sum);
+  //   }
+  // }
+
+  // for (int i = 0; i < padded_n; i++) {
+  //   out[i] = out_vec[i];
+  // }
+}
+// x x x x x
+// x x x x x
+// x x x x x
+// x x x x x

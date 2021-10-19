@@ -46,111 +46,44 @@ char output_fname[] = "../data/processed-raw-int8-4x-cpu.dat";
 
 // see https://en.wikipedia.org/wiki/Sobel_operator
 //
-float sobel_filtered_pixel(float *s, int i, int j, int dims[], float *gx,
+float sobel_filtered_pixel(float *in, int x, int y, int dims[], float *gx,
                            float *gy) {
-  float t = 0.0;
   int gi = 0;
   float sum = 0.0;
+  float gytemp = 0.0;
+  float gxtemp = 0.0;
   for (int ky = -1; ky < 2; ky++) {
     for (int kx = -1; kx < 2; kx++) {
-      int cxIdx = i + kx;
-      int cyIdx = j + ky;
-      int cyPos = cyIdx * padded_dims[0];
+      int cxIdx = x + kx;
+      int cyIdx = y + ky;
+      int cyPos = cyIdx * dims[0];
       int cxy = cyPos + cxIdx;
-      float sxy = s[cxy];
-      float gxtemp = gx[gi] * sxy;
-      float gytemp = gy[gi] * sxy;
-      float gxSq = gxtemp * gxtemp;
-      float gySq = gytemp * gytemp;
-      sum += gxSq + gySq;
+      float sxy = in[cxy];
+      gxtemp += gx[gi] * sxy;
+      gytemp += gy[gi] * sxy;
       gi++;
     }
   }
-  t = sqrt(sum);
-  t = s[j * padded_dims[0] + i];
-  return t;
+  return sqrt((gxtemp * gxtemp) + (gytemp * gytemp));
 }
 
 float Gx[] = {1.0, 0.0, -1.0, 2.0, 0.0, -2.0, 1.0, 0.0, -1.0};
 float Gy[] = {1.0, 2.0, 1.0, 0.0, 0.0, 0.0, -1.0, -2.0, -1.0};
 
 void do_sobel_filtering(float *in, float *out, int dims[2]) {
-  for (int y = 1; y < dims[1] - 1; y++) {
-    for (int x = 1; x < dims[0] - 1; x++) {
-      int outIdx = y * dims[0] + x;
 
-      int gi = 0;
-      float sum = 0.0;
-      float gytemp = 0.0;
-      float gxtemp = 0.0;
-      for (int ky = -1; ky < 2; ky++) {
-        for (int kx = -1; kx < 2; kx++) {
-          int cxIdx = x + kx;
-          int cyIdx = y + ky;
-          int cyPos = cyIdx * padded_dims[0];
-          int cxy = cyPos + cxIdx;
-          float sxy = in[cxy];
-          gxtemp += Gx[gi] * sxy;
-          gytemp += Gy[gi] * sxy;
-          gi++;
-        }
-      }      
-      out[outIdx] = sqrt((gxtemp*gxtemp)+(gytemp *gytemp));
+#pragma omp parallel default(none) shared(in, out, dims, Gx, Gy)
+  {
+#pragma omp for collapse(2)
+    for (int y = 1; y < dims[1] - 1; y++) {
+      for (int x = 1; x < dims[0] - 1; x++) {
+        int outIdx = y * dims[0] + x;
+        out[outIdx] = sobel_filtered_pixel(in, x, y, dims, Gx, Gy);
+      }
     }
   }
-  // off_t padded_n = padded_dims[0] * padded_dims[1];
-  // off_t nvalues = dims[0] * dims[1];
-  // std::vector<float> out_vec = std::vector<float>(padded_n);
-  // std::vector<float> in_vec = std::vector<float>(padded_n);
-  // for (int i = 0; i < padded_n; i++) {
-  //   out_vec[i] = 1.0f;
-  //   in_vec.at(i) = 0.0f;
-  // }
-  // int halfPad = paddingWidth / 2;
-  // for (int y = halfPad; y < padded_dims[1] - halfPad; y++) {
-  //   for (int x = halfPad; x < padded_dims[0] - halfPad; x++) {
-  //     int outIdx = y * padded_dims[0] + x;
-  //     int y_in = y - halfPad;
-  //     int x_in = x - halfPad;
-  //     in_vec[outIdx] = in[y_in * dims[0] + x_in];
-  //   }
-  // }
-  // std::cout << "Finished filling up" << std::endl;
-  // for (int y = halfPad; y < padded_dims[1] - halfPad; y++) {
-  //   for (int x = halfPad; x < padded_dims[0] - halfPad; x++) {
-  //     int outIdx = y * padded_dims[0] + x;
-  //     // sobel pixel func
-  //     int gi = 0;
-  //     float sum = 0.0;
-  //     for (int ky = -1; ky < 2; ky++) {
-  //       for (int kx = -1; kx < 2; kx++) {
-  //         int cxIdx = x + kx;
-  //         int cyIdx = y + ky;
-  //         int cyPos = cyIdx * padded_dims[0];
-  //         int cxy = cyPos + cxIdx;
-  //         float sxy = in_vec.at(cxy);
-  //         float gxtemp = Gx[gi] * sxy;
-  //         float gytemp = Gy[gi] * sxy;
-  //         float gxSq = gxtemp * gxtemp;
-  //         float gySq = gytemp * gytemp;
-  //         sum += gxSq + gySq;
-  //         gi++;
-  //       }
-  //     }
-
-  //     // out_vec[outIdx] = in_vec[outIdx];
-  //     out_vec[outIdx] = sqrt(sum);
-  //   }
-  // }
-
-  // for (int i = 0; i < padded_n; i++) {
-  //   out[i] = out_vec[i];
-  // }
 }
-// x x x x x
-// x x x x x
-// x x x x x
-// x x x x x
+
 int main(int ac, char *av[]) {
 
   off_t nvalues = data_dims[0] * data_dims[1];
