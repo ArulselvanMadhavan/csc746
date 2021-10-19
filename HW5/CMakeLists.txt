@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 project(sobel_harness LANGUAGES CXX)
 
+set(CMAKE_CXX_COMPILER "$HOME/.local/bin/clang++")
 set(CMAKE_BUILD_TYPE "Release")
 
 add_executable(sobel_cpu sobel_cpu.cpp)
