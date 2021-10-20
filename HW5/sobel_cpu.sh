@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for N in 1 2 4 8 16 32
+for N in 1 2 4 8 12 16
 do
     echo "Running OMP_NUM_THREADS=$N"
     export OMP_NUM_THREADS=$N
