@@ -11,7 +11,7 @@ void add(int n, float *x, float *y)
 }
 
 __global__
-void add(int n, float *x, float *y)
+void add2(int n, float *x, float *y)
 {
   int index = blockIdx.x * blockDim.x + threadIdx.x;
   int stride = blockDim.x * gridDim.x;
@@ -37,7 +37,7 @@ int blockSize = 256;
 int numBlocks = (N + blockSize - 1) / blockSize;
   // Run kernel on 1M elements on the GPU
   add<<<numBlocks, blockSize>>>(N, x, y);
-add2<<<numBlocks, blockSize>>>(N, x, y);
+  add2<<<numBlocks, blockSize>>>(N, x, y);
   // Wait for GPU to finish before accessing on host
   cudaDeviceSynchronize();
 
