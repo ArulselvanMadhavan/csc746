@@ -1,0 +1,28 @@
+==66882== NVPROF is profiling process 66882, command: ./sobel_gpu
+ Read data from the file ../data/zebra-gray-int8-4x 
+Your THREADS_PER_BLOCK is: 1024
+Your THREADS_PER_BLOCK is: 256
+ GPU configuration: 1024 blocks, 256 threads per block 
+ Wrote the output file ../data/processed-raw-int8-4x-gpu.dat 
+==66882== Profiling application: ./sobel_gpu
+==66882== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:  100.00%  14.009ms         1  14.009ms  14.009ms  14.009ms  sobel_kernel_gpu(float*, float*, int, int, int, float*, float*)
+      API calls:   77.34%  129.29ms         4  32.322ms  3.8520us  129.18ms  cudaMallocManaged
+                   14.00%  23.402ms         4  5.8504ms  3.7600us  11.767ms  cudaMemPrefetchAsync
+                    8.40%  14.047ms         1  14.047ms  14.047ms  14.047ms  cudaDeviceSynchronize
+                    0.14%  231.67us         1  231.67us  231.67us  231.67us  cuDeviceTotalMem
+                    0.09%  142.49us        97  1.4680us     157ns  60.674us  cuDeviceGetAttribute
+                    0.02%  25.542us         1  25.542us  25.542us  25.542us  cuDeviceGetName
+                    0.01%  24.604us         1  24.604us  24.604us  24.604us  cudaLaunchKernel
+                    0.01%  11.078us         1  11.078us  11.078us  11.078us  cuDeviceGetPCIBusId
+                    0.00%  2.0040us         3     668ns     144ns  1.6480us  cuDeviceGetCount
+                    0.00%  1.0240us         2     512ns     149ns     875ns  cuDeviceGet
+                    0.00%     254ns         1     254ns     254ns     254ns  cuDeviceGetUuid
+
+==66882== Unified Memory profiling result:
+Device "NVIDIA GeForce GTX 1070 (0)"
+   Count  Avg Size  Min Size  Max Size  Total Size  Total Time  Name
+     141  1.9804MB  4.0000KB  2.0000MB  279.2305MB  22.80198ms  Host To Device
+     840  170.19KB  4.0000KB  0.9961MB  139.6133MB  11.64138ms  Device To Host
+Total CPU Page faults: 1261

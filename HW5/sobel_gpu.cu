@@ -85,6 +85,16 @@ __global__ void sobel_kernel_gpu(
   }
 }
 
+int readEnvInt(const char *key) {
+  int result = 1;
+  if (const char *val = std::getenv(key)) {
+    result = std::atoi(val);
+  } else {
+    std::cout << "NUM_BLOCKS not set. Defaulting to 1" << '\n';
+  }
+  return result;
+}
+
 int main(int ac, char *av[]) {
   // input, output file names hard coded at top of file
 
@@ -144,16 +154,8 @@ int main(int ac, char *av[]) {
 
   // set up to run the kernel
   int nBlocks = 0, nThreadsPerBlock = 256;
-  if(const char* nBlocksChar = std::getenv("NUM_BLOCKS")){
-        std::cout << "Your NUM_BLOCKS is: " << nBlocksChar << '\n';
-	nBlocks = std::atoi(nBlocksChar);
-  } else {
-      std::cout << "NUM_BLOCKS not set. Defaulting to 1" << '\n';
-      nBlocks = 1;
-  }
-    
-  // ADD CODE HERE: insert your code here to set a different number of thread
-  // blocks or # of threads per block
+  nBlocks = readEnvInt("NUM_BLOCKS");
+  nThreadsPerBlock = readEnvInt("THREADS_PER_BLOCK");
 
   printf(" GPU configuration: %d blocks, %d threads per block \n", nBlocks,
          nThreadsPerBlock);
