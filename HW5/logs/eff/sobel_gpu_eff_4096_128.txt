@@ -1,0 +1,11 @@
+==77314== NVPROF is profiling process 77314, command: ./sobel_gpu
+==77314== Profiling application: ./sobel_gpu
+ Read data from the file ../data/zebra-gray-int8-4x 
+ GPU configuration: 4096 blocks, 256 threads per block 
+ Wrote the output file ../data/processed-raw-int8-4x-gpu.dat 
+==77314== Profiling result:
+==77314== Metric result:
+Invocations                               Metric Name                        Metric Description         Min         Max         Avg
+Device "NVIDIA GeForce GTX 1070 (0)"
+    Kernel: sobel_kernel_gpu(float*, float*, int, int, int, float*, float*)
+          1                             sm_efficiency                   Multiprocessor Activity      99.80%      99.80%      99.80%

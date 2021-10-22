@@ -123,8 +123,9 @@ Usage:
     python imshow.py filename-of-raw-8bit-bytes int-cols-width int-rows-height
 
 
-# Instructions to run the code
-
+# Instructions to run the code on local
+- I had clang compiled for nvidia compute capability 61. Cmake needed some help in finding the right libs
 '''bash
-cd ../;rm -rf build; mkdir build; cd build;cmake ../; make; ./sobel_cpu
+export LD_LIBRARY_PATH="$HOME/.local/lib/:$LD_LIBRARY_PATH"
+rm -rf build/ && mkdir build && cd build && cmake ../ -DCMAKE_CXX_COMPILER=$HOME/.local/bin/clang++
 '''

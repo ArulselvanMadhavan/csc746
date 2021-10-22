@@ -1,0 +1,23 @@
+==81415== NVPROF is profiling process 81415, command: ./sobel_gpu
+==81415== Profiling application: ./sobel_gpu
+==81415== Profiling result:
+"Type","Time(%)","Time","Calls","Avg","Min","Max","Name"
+,%,ms,,ms,ms,ms,
+"GPU activities",100.000000,25.138251,1,25.138251,25.138251,25.138251,"sobel_kernel_gpu(float*, float*, int, int, int, float*, float*)"
+"API calls",70.838292,118.436176,4,29.609044,0.005099,118.318822,"cudaMallocManaged"
+"API calls",15.057694,25.175307,1,25.175307,25.175307,25.175307,"cudaDeviceSynchronize"
+"API calls",13.935925,23.299795,4,5.824948,0.004346,11.683849,"cudaMemPrefetchAsync"
+"API calls",0.081582,0.136398,1,0.136398,0.136398,0.136398,"cuDeviceTotalMem"
+"API calls",0.054652,0.091374,97,0.000942,0.000097,0.038113,"cuDeviceGetAttribute"
+"API calls",0.018775,0.031391,1,0.031391,0.031391,0.031391,"cudaLaunchKernel"
+"API calls",0.008816,0.014740,1,0.014740,0.014740,0.014740,"cuDeviceGetName"
+"API calls",0.002726,0.004558,1,0.004558,0.004558,0.004558,"cuDeviceGetPCIBusId"
+"API calls",0.000868,0.001451,3,0.000483,0.000101,0.000715,"cuDeviceGetCount"
+"API calls",0.000583,0.000975,2,0.000487,0.000151,0.000824,"cuDeviceGet"
+"API calls",0.000086,0.000144,1,0.000144,0.000144,0.000144,"cuDeviceGetUuid"
+
+==81415== Unified Memory profiling result:
+"Device","Count","Avg Size","Min Size","Max Size","Total Size","Total Time",""
+"NVIDIA GeForce GTX 1070 (0)",141,1.980357MB,4.000000KB,2.000000MB,279.230469MB,0.000000,"Host To Device"
+"NVIDIA GeForce GTX 1070 (0)",840,170.194336KB,4.000000KB,0.996094MB,139.613281MB,0.000000,"Device To Host"
+Total CPU Page faults: 1261

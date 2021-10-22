@@ -1,0 +1,6 @@
+==82027== NVPROF is profiling process 82027, command: ./sobel_gpu
+==82027== Profiling application: ./sobel_gpu
+==82027== Profiling result:
+==82027== Metric result:
+"Device","Kernel","Invocations","Metric Name","Metric Description","Min","Max","Avg"
+"NVIDIA GeForce GTX 1070 (0)","sobel_kernel_gpu(float*, float*, int, int, int, float*, float*)",1,"sm_efficiency","Multiprocessor Activity",99.943847%,99.943847%,99.943847%

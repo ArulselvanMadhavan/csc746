@@ -6,5 +6,5 @@ do
     export OMP_NUM_THREADS=$N
     export OMP_PLACES=threads
     export OMP_PROC_BIND=spread
-    ./sobel_cpu
+    ./sobel_cpu > ../logs/cpu/sobel_cpu_$N.txt 2>&1
 done

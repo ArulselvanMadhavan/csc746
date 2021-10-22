@@ -1,0 +1,6 @@
+==82144== NVPROF is profiling process 82144, command: ./sobel_gpu
+==82144== Profiling application: ./sobel_gpu
+==82144== Profiling result:
+==82144== Metric result:
+"Device","Kernel","Invocations","Metric Name","Metric Description","Min","Max","Avg"
+"NVIDIA GeForce GTX 1070 (0)","sobel_kernel_gpu(float*, float*, int, int, int, float*, float*)",1,"sm_efficiency","Multiprocessor Activity",99.761645%,99.761645%,99.761645%

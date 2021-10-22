@@ -1,0 +1,3 @@
+ Read data from the file ../data/zebra-gray-int8-4x 
+ Elapsed time is : 0.170691 
+ Wrote the output file ../data/processed-raw-int8-4x-cpu.dat 
