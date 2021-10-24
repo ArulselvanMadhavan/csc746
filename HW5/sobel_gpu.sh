@@ -8,6 +8,6 @@ do
 	export THREADS_PER_BLOCK=256
 	echo "Running B=${b} T=${t}"
 	nvprof -m sm_efficiency --csv --log-file ../logs/gpu/eff/sobel_gpu_eff_${b}_${t}.txt ./sobel_gpu
-	nvprof --csv --log-file ../logs/gpu/exec/sobel_gpu_${b}_${t}.txt ./sobel_gpu
+	nvprof --csv --log-file ../logs/gpu/exec/sobel_gpu_exec_${b}_${t}.txt ./sobel_gpu
     done
 done

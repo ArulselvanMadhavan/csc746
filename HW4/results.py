@@ -161,3 +161,8 @@ if __name__ == "__main__":
         tables(idx, mode_data)
     
         # table2(idx, mode_data)
+
+
+
+
+
