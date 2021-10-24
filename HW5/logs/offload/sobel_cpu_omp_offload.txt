@@ -1,19 +1,6 @@
-Libomptarget device 0 info: OpenMP Host-Device pointer mappings after block at unknown:0:0:
-Libomptarget device 0 info: Host Ptr           Target Ptr         Size (B) DynRefCount HoldRefCount Declaration
-Libomptarget device 0 info: 0x00007fc6ee8c6010 0x00007fc6ce000000 146393408 1           0            unknown at unknown:0:0
-Libomptarget device 0 info: 0x00007fc6f7463010 0x00007fc6d8000000 146393408 1           0            unknown at unknown:0:0
-Libomptarget device 0 info: 0x00007ffda73aa598 0x00007fc6e0c00200 4        1           0            unknown at unknown:0:0
-Libomptarget device 0 info: 0x00007ffda73aa59c 0x00007fc6e0c00000 4        1           0            unknown at unknown:0:0
-Libomptarget device 0 info: 0x00007ffda73aa5a0 0x00007fc6e0c00600 36       1           0            unknown at unknown:0:0
-Libomptarget device 0 info: 0x00007ffda73aa5d0 0x00007fc6e0c00400 36       1           0            unknown at unknown:0:0
-Libomptarget device 0 info: OpenMP Host-Device pointer mappings after block at unknown:0:0:
-Libomptarget device 0 info: Host Ptr           Target Ptr         Size (B) DynRefCount HoldRefCount Declaration
-Libomptarget device 0 info: 0x00007fc6ee8c6010 0x00007fc6ce000000 146393408 1           0            unknown at unknown:0:0
-Libomptarget device 0 info: 0x00007fc6f7463010 0x00007fc6d8000000 146393408 1           0            unknown at unknown:0:0
-Libomptarget device 0 info: 0x00007ffda73aa598 0x00007fc6e0c00200 4        1           0            unknown at unknown:0:0
-Libomptarget device 0 info: 0x00007ffda73aa59c 0x00007fc6e0c00000 4        1           0            unknown at unknown:0:0
-Libomptarget device 0 info: 0x00007ffda73aa5a0 0x00007fc6e0c00600 36       1           0            unknown at unknown:0:0
-Libomptarget device 0 info: 0x00007ffda73aa5d0 0x00007fc6e0c00400 36       1           0            unknown at unknown:0:0
- Read data from the file ../data/zebra-gray-int8-4x 
- Elapsed time is : 0.175322 
- Wrote the output file ../data/processed-raw-int8-4x-omp-offload.dat 
+==10813== NVPROF is profiling process 10813, command: ./sobel_cpu_omp_offload
+==10813== Profiling application: ./sobel_cpu_omp_offload
+==10813== Profiling result:
+==10813== Metric result:
+"Device","Kernel","Invocations","Metric Name","Metric Description","Min","Max","Avg"
+"Tesla V100-SXM2-16GB (0)","__omp_offloading_39_17b687c6__Z18do_sobel_filteringPfS_Pi_l85",1,"sm_efficiency","Multiprocessor Activity",98.840174%,98.840174%,98.840174%

@@ -1,0 +1,23 @@
+==13094== NVPROF is profiling process 13094, command: ./sobel_gpu
+==13094== Profiling application: ./sobel_gpu
+==13094== Profiling result:
+"Type","Time(%)","Time","Calls","Avg","Min","Max","Name"
+,%,ms,,ms,ms,ms,
+"GPU activities",100.000000,3.084085,1,3.084085,3.084085,3.084085,"sobel_kernel_gpu(float*, float*, int, int, int, float*, float*)"
+"API calls",89.779870,270.565610,4,67.641402,0.006355,270.410215,"cudaMallocManaged"
+"API calls",5.464009,16.466641,1,16.466641,16.466641,16.466641,"cudaDeviceSynchronize"
+"API calls",4.340950,13.082128,4,3.270532,0.004684,12.939027,"cudaMemPrefetchAsync"
+"API calls",0.251094,0.756711,101,0.007492,0.000116,0.338240,"cuDeviceGetAttribute"
+"API calls",0.113266,0.341346,1,0.341346,0.341346,0.341346,"cuDeviceTotalMem"
+"API calls",0.028457,0.085760,1,0.085760,0.085760,0.085760,"cuDeviceGetName"
+"API calls",0.020097,0.060564,1,0.060564,0.060564,0.060564,"cudaLaunchKernel"
+"API calls",0.001651,0.004975,1,0.004975,0.004975,0.004975,"cuDeviceGetPCIBusId"
+"API calls",0.000302,0.000911,3,0.000303,0.000147,0.000597,"cuDeviceGetCount"
+"API calls",0.000225,0.000679,2,0.000339,0.000125,0.000554,"cuDeviceGet"
+"API calls",0.000078,0.000236,1,0.000236,0.000236,0.000236,"cuDeviceGetUuid"
+
+==13094== Unified Memory profiling result:
+"Device","Count","Avg Size","Min Size","Max Size","Total Size","Total Time",""
+"Tesla V100-SXM2-16GB (0)",141,1.980357MB,4.000000KB,2.000000MB,279.230469MB,0.000000,"Host To Device"
+"Tesla V100-SXM2-16GB (0)",840,170.194336KB,4.000000KB,0.996094MB,139.613281MB,0.000000,"Device To Host"
+Total CPU Page faults: 1261
