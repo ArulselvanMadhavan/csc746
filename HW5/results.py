@@ -52,17 +52,17 @@ def get_runtime():
     bs = []
     ts = []
     runtime = np.zeros((6,7))
-    print(b_dict)
-    print(t_dict)
     for f in files:
-        xs = f.split("_")
-        b = xs[2]
-        t = xs[3].split(".")[0]
+        xs = f.split("_")        
+        b = xs[3]
+        t = xs[4].split(".")[0]
         bs.append(b)
         ts.append(t)
         with open(f, 'r') as fn:
             lines = fn.readlines()[3:]
+            unit = lines[1].split(",")[2]
             rt = float(lines[2].split(",")[2])
+            rt = rt / 1000 if unit == "us" else rt
             runtime[t_dict[t]][b_dict[b]] = round(rt,1)
     return runtime
 
