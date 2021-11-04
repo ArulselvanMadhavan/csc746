@@ -1,6 +1,6 @@
-==81842== NVPROF is profiling process 81842, command: ./sobel_gpu
-==81842== Profiling application: ./sobel_gpu
-==81842== Profiling result:
-==81842== Metric result:
+==13483== NVPROF is profiling process 13483, command: ./sobel_gpu
+==13483== Profiling application: ./sobel_gpu
+==13483== Profiling result:
+==13483== Metric result:
 "Device","Kernel","Invocations","Metric Name","Metric Description","Min","Max","Avg"
-"NVIDIA GeForce GTX 1070 (0)","sobel_kernel_gpu(float*, float*, int, int, int, float*, float*)",1,"sm_efficiency","Multiprocessor Activity",99.960880%,99.960880%,99.960880%
+"Tesla V100-SXM2-16GB (0)","sobel_kernel_gpu(float*, float*, int, int, int, float*, float*)",1,"sm_efficiency","Multiprocessor Activity",97.680942%,97.680942%,97.680942%
