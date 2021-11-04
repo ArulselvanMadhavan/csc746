@@ -67,8 +67,17 @@ float sobel_filtered_pixel(float *in, int x, int y, int dims[], float *gx,
   return sqrt((gxtemp * gxtemp) + (gytemp * gytemp));
 }
 
-float Gx[] = {1.0, 0.0, -1.0, 2.0, 0.0, -2.0, 1.0, 0.0, -1.0};
-float Gy[] = {1.0, 2.0, 1.0, 0.0, 0.0, 0.0, -1.0, -2.0, -1.0};
+// Rows * columns
+float Gx[] = {
+  1.0, 0.0, -1.0,
+  2.0, 0.0, -2.0,
+  1.0, 0.0, -1.0
+};
+float Gy[] = {
+  1.0, 2.0, 1.0,
+  0.0, 0.0, 0.0,
+  -1.0, -2.0, -1.0
+};
 
 void do_sobel_filtering(float *in, float *out, int dims[2]) {
 

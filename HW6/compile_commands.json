@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/arul/dev/csc746/HW6/build",
+  "command": "/usr/bin/c++   -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include  -O3 -DNDEBUG   -o CMakeFiles/mpi_2dmesh.dir/mpi_2dmesh.cpp.o -c /home/arul/dev/csc746/HW6/mpi_2dmesh.cpp",
+  "file": "/home/arul/dev/csc746/HW6/mpi_2dmesh.cpp"
+}
+]
