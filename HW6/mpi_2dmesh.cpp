@@ -396,11 +396,30 @@ void recvStridedBuffer(float *dstBuf, int dstWidth, int dstHeight,
   }
 }
 
-//
-// ADD YOUR CODE HERE
-// that performs sobel filtering
-// suggest using your cpu code from HW5, no OpenMP parallelism
-//
+float sobel_filtered_pixel(float *in, int x, int y, int dims[], float *gx,
+                           float *gy) {
+  int gi = 0;
+  float sum = 0.0;
+  float gytemp = 0.0;
+  float gxtemp = 0.0;
+  for (int ky = -1; ky < 2; ky++) {
+    for (int kx = -1; kx < 2; kx++) {
+      int cxIdx = x + kx;
+      int cyIdx = y + ky;
+      int cyPos = cyIdx * dims[0];
+      int cxy = cyPos + cxIdx;
+      float sxy = in[cxy];
+      gxtemp += gx[gi] * sxy;
+      gytemp += gy[gi] * sxy;
+      gi++;
+    }
+  }
+  return sqrt((gxtemp * gxtemp) + (gytemp * gytemp));
+}
+
+// Rows * columns
+float Gx[] = {1.0, 0.0, -1.0, 2.0, 0.0, -2.0, 1.0, 0.0, -1.0};
+float Gy[] = {1.0, 2.0, 1.0, 0.0, 0.0, 0.0, -1.0, -2.0, -1.0};
 
 void sobelAllTiles(int myrank, vector<vector<Tile2D>> &tileArray) {
   for (int row = 0; row < tileArray.size(); row++) {
@@ -408,19 +427,19 @@ void sobelAllTiles(int myrank, vector<vector<Tile2D>> &tileArray) {
       Tile2D *t = &(tileArray[row][col]);
 
       if (t->tileRank == myrank) {
-#if 0
-            // debug code
-            // v1: fill the output buffer with the value of myrank
-            //            printf(" sobelAllTiles(): filling the output buffer of size=%d with myrank=%d\n:", t->outputBuffer.size(), myrank);
-            //std::fill(t->outputBuffer.begin(), t->outputBuffer.end(), myrank);
+        // std::copy(t->inputBuffer.begin(), t->inputBuffer.end(),
+        // t->outputBuffer.begin());
+        float *in = t->inputBuffer.data();
+        float *out = t->outputBuffer.data();
+        int dims[2] = {t->width, t->height};
+        for (int y = 1; y < dims[1] - 1; y++) {
+          for (int x = 1; x < dims[0] - 1; x++) {
 
-            // v2. copy the input to the output, umodified
-         //   std::copy(t->inputBuffer.begin(), t->inputBuffer.end(), t->outputBuffer.begin());
-#endif
-        std::copy(t->inputBuffer.begin(), t->inputBuffer.end(),
-                  t->outputBuffer.begin());
-        // ADD YOUR CODE HERE
-        // to call your sobel filtering code on each tile
+            int outIdx = y * dims[0] + x;
+            // out[outIdx] = in[outIdx];
+            out[outIdx] = sobel_filtered_pixel(in, x, y, dims, Gx, Gy);
+          }
+        }
       }
     }
   }

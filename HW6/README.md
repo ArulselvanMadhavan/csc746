@@ -132,3 +132,4 @@ Mac-side Quartz configuration issue.
 
 If this issue affects you, you might want to consider trying NX to remote desktop
 to Cori. See https://docs.nersc.gov/connect/nx/ for more information.
+
