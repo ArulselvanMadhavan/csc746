@@ -235,7 +235,7 @@ void write_output_labels(AppState as, vector<vector<Tile2D>> tileArray) {
   size_t gsize = xsize * ysize;
   printf("\n\nWriting out mesh labels to a file \n");
 
-  int *meshRankLabels = (int *) malloc(gsize * sizeof(int));
+  int *meshRankLabels = (int *)malloc(gsize * sizeof(int));
 
   for (off_t i = 0; i < xsize * ysize; i++)
     meshRankLabels[i] = -1;
@@ -358,16 +358,12 @@ void sendStridedBuffer(float *srcBuf, int srcWidth, int srcHeight,
                        int srcOffsetColumn, int srcOffsetRow, int sendWidth,
                        int sendHeight, int fromRank, int toRank) {
   int msgTag = 0;
+  MPI_Request request;
+  int srcPos = srcOffsetRow * srcWidth + srcOffsetColumn;
+  int count = sendWidth * sendHeight;
 
-  //
-  // ADD YOUR CODE HERE
-  // That performs sending of  data using MPI_Send(), going "fromRank" and to
-  // "toRank". The data to be sent is in srcBuf, which has width srcWidth,
-  // srcHeight. Your code needs to send a subregion of srcBuf, where the
-  // subregion is of size sendWidth by sendHeight values, and the subregion is
-  // offset from the origin of srcBuf by the values specificed by
-  // srcOffsetColumn, srcOffsetRow.
-  //
+  float *startPos = srcBuf + srcPos;
+  MPI_Send(startPos, count, MPI_FLOAT, toRank, msgTag, MPI_COMM_WORLD);
 }
 
 void recvStridedBuffer(float *dstBuf, int dstWidth, int dstHeight,
@@ -377,15 +373,11 @@ void recvStridedBuffer(float *dstBuf, int dstWidth, int dstHeight,
   int msgTag = 0;
   int recvSize[2];
   MPI_Status stat;
-
-  //
-  // ADD YOUR CODE HERE
-  // That performs receiving of data using MPI_Recv(), coming "fromRank" and
-  // destined for "toRank". The size of the data that arrives will be of size
-  // expectedWidth by expectedHeight values. This incoming data is to be placed
-  // into the subregion of dstBuf that has an origin at dstOffsetColumn,
-  // dstOffsetRow, and that is expectedWidth, expectedHeight in size.
-  //
+  MPI_Request request;
+  int dPos = dstOffsetRow * dstWidth + dstOffsetColumn;
+  int count = expectedWidth * expectedHeight;
+  float *startPos = dstBuf + dPos;
+  MPI_Recv(startPos, count, MPI_FLOAT, fromRank, msgTag, MPI_COMM_WORLD, &stat);
 }
 
 //
@@ -409,6 +401,8 @@ void sobelAllTiles(int myrank, vector<vector<Tile2D>> &tileArray) {
             // v2. copy the input to the output, umodified
          //   std::copy(t->inputBuffer.begin(), t->inputBuffer.end(), t->outputBuffer.begin());
 #endif
+        std::copy(t->inputBuffer.begin(), t->inputBuffer.end(),
+                  t->outputBuffer.begin());
         // ADD YOUR CODE HERE
         // to call your sobel filtering code on each tile
       }
@@ -434,7 +428,7 @@ void scatterAllTiles(int myrank, vector<vector<Tile2D>> &tileArray, float *s,
         t->outputBuffer.resize(t->width * t->height);
 #if DEBUG_TRACE
         printf("scatterAllTiles() receive side:: t->tileRank=%d, myrank=%d, "
-               "t->inputBuffer->size()=%d, t->outputBuffersize()=%d \n",
+               "t->inputBuffer->size()=%zu, t->outputBuffersize()=%zu \n",
                t->tileRank, myrank, t->inputBuffer.size(),
                t->outputBuffer.size());
 #endif
@@ -448,7 +442,7 @@ void scatterAllTiles(int myrank, vector<vector<Tile2D>> &tileArray, float *s,
         if (t->tileRank != 0) {
 #if DEBUG_TRACE
           printf("scatterAllTiles() send side: t->tileRank=%d, myrank=%d, "
-                 "t->inputBuffer->size()=%d \n",
+                 "t->inputBuffer->size()=%zu \n",
                  t->tileRank, myrank, t->inputBuffer.size());
 #endif
 
@@ -498,7 +492,7 @@ void gatherAllTiles(int myrank, vector<vector<Tile2D>> &tileArray, float *d,
 
 #if DEBUG_TRACE
       printf("gatherAllTiles(): t->tileRank=%d, myrank=%d, "
-             "t->outputBuffer->size()=%d \n",
+             "t->outputBuffer->size()=%zu \n",
              t->tileRank, myrank, t->outputBuffer.size());
 #endif
 
@@ -528,7 +522,7 @@ void gatherAllTiles(int myrank, vector<vector<Tile2D>> &tileArray, float *d,
             memcpy((void *)(d + d_offset), (void *)(s + s_offset),
                    sizeof(float) * t->width);
           }
-        }
+        }                    
       }
     }
   } // loop over 2D array of tiles
