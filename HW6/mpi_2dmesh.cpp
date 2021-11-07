@@ -149,7 +149,7 @@ void computeMeshDecomposition(AppState *as, vector<vector<Tile2D>> *tileArray) {
       vector<Tile2D> tiles;
       int width = as->global_mesh_size[0];
       int height = ylocs[i + 1] - ylocs[i];
-      Tile2D t = Tile2D(0, ylocs[i], width, height, i);
+      Tile2D t = Tile2D(0, ylocs[i], width, height, i, 0, i, 1, ytiles);
       tiles.push_back(t);
       tileArray->push_back(tiles);
     }
@@ -174,7 +174,7 @@ void computeMeshDecomposition(AppState *as, vector<vector<Tile2D>> *tileArray) {
     for (int i = 0; i < xtiles; i++) {
       int width = xlocs[i + 1] - xlocs[i];
       int height = as->global_mesh_size[1];
-      Tile2D t = Tile2D(xlocs[i], 0, width, height, i);
+      Tile2D t = Tile2D(xlocs[i], 0, width, height, i, i, 0, xtiles, 1);
       tile_row.push_back(t);
     }
     tileArray->push_back(tile_row);
@@ -219,7 +219,8 @@ void computeMeshDecomposition(AppState *as, vector<vector<Tile2D>> *tileArray) {
         int width, height;
         width = xlocs[i + 1] - xlocs[i];
         height = ylocs[j + 1] - ylocs[j];
-        Tile2D t = Tile2D(xlocs[i], ylocs[j], width, height, rank++);
+        Tile2D t = Tile2D(xlocs[i], ylocs[j], width, height, rank++, i, j,
+                          xtiles, ytiles);
         tile_row.push_back(t);
       }
       tileArray->push_back(tile_row);
@@ -436,7 +437,8 @@ void sobelAllTiles(int myrank, vector<vector<Tile2D>> &tileArray) {
           for (int x = 1; x < dims[0] - 1; x++) {
 
             int outIdx = y * dims[0] + x;
-            out[outIdx] = sobel_filtered_pixel(in, x, y, dims, Gx, Gy);
+            out[outIdx] = in[outIdx];
+            // out[outIdx] = sobel_filtered_pixel(in, x, y, dims, Gx, Gy);
           }
         }
       }
@@ -453,13 +455,15 @@ void scatterAllTiles(int myrank, vector<vector<Tile2D>> &tileArray, float *s,
   for (int row = 0; row < tileArray.size(); row++) {
     for (int col = 0; col < tileArray[row].size(); col++) {
       Tile2D *t = &(tileArray[row][col]);
-
+      int tileW = t->width + t->ghost_xmax + t->ghost_xmin;
+      int tileH = t->height + t->ghost_ymax + t->ghost_ymin;
+      int tileSize = tileW * tileH;
       if (myrank != 0 && t->tileRank == myrank) {
         int fromRank = 0;
 
         // receive a tile's buffer
-        t->inputBuffer.resize(t->width * t->height);
-        t->outputBuffer.resize(t->width * t->height);
+        t->inputBuffer.resize(tileSize);
+        t->outputBuffer.resize(tileSize);
 #if DEBUG_TRACE
         printf("scatterAllTiles() receive side:: t->tileRank=%d, myrank=%d, "
                "t->inputBuffer->size()=%zu, t->outputBuffersize()=%zu \n",
