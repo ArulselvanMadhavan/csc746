@@ -436,7 +436,6 @@ void sobelAllTiles(int myrank, vector<vector<Tile2D>> &tileArray) {
           for (int x = 1; x < dims[0] - 1; x++) {
 
             int outIdx = y * dims[0] + x;
-            // out[outIdx] = in[outIdx];
             out[outIdx] = sobel_filtered_pixel(in, x, y, dims, Gx, Gy);
           }
         }
