@@ -49,7 +49,7 @@
 int parseArgs(int ac, char *av[], AppState *as) {
   int rstat = 0;
   int c;
-
+  // Arul: No output filename?
   while ((c = getopt(ac, av, "va:g:x:y:i:")) != -1) {
     switch (c) {
     case 'a': {
@@ -232,10 +232,10 @@ void write_output_labels(AppState as, vector<vector<Tile2D>> tileArray) {
 
   size_t xsize = as.global_mesh_size[0];
   size_t ysize = as.global_mesh_size[1];
-
+  size_t gsize = xsize * ysize;
   printf("\n\nWriting out mesh labels to a file \n");
 
-  int meshRankLabels[as.global_mesh_size[0] * as.global_mesh_size[1]];
+  int *meshRankLabels = (int *) malloc(gsize * sizeof(int));
 
   for (off_t i = 0; i < xsize * ysize; i++)
     meshRankLabels[i] = -1;
@@ -269,8 +269,9 @@ void write_output_labels(AppState as, vector<vector<Tile2D>> tileArray) {
   if (f == NULL) {
     perror(" Error opening output file ");
   }
-  fwrite((void *)meshRankLabels, sizeof(int), xsize * ysize, f);
+  fwrite((void *)meshRankLabels, sizeof(int), gsize, f);
   fclose(f);
+  free(meshRankLabels);
 } // end writing an output buffer
 
 void printTileArray(vector<vector<Tile2D>> &tileArray) {
