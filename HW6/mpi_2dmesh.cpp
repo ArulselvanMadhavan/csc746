@@ -372,7 +372,8 @@ void sendStridedBuffer(float *srcBuf, int srcWidth, int srcHeight,
     memcpy((void *)(buffer + bPos), (void *)(startPos + rPos),
            sizeof(float) * sendWidth);
   }
-  MPI_Send(buffer, count, MPI_FLOAT, toRank, msgTag, MPI_COMM_WORLD);
+  MPI_Isend(buffer, count, MPI_FLOAT, toRank, msgTag, MPI_COMM_WORLD, &request);
+  MPI_Request_free(&request);
 }
 
 void recvStridedBuffer(float *dstBuf, int dstWidth, int dstHeight,
@@ -470,7 +471,7 @@ void scatterAllTiles(int myrank, vector<vector<Tile2D>> &tileArray, float *s,
                t->tileRank, myrank, t->inputBuffer.size(),
                t->outputBuffer.size());
 #endif
-
+	// recvStridedBuf(t->inputBuffer.data());
         recvStridedBuffer(
             t->inputBuffer.data(), t->width, t->height, 0,
             0, // offset into the tile buffer: we want the whole thing
