@@ -368,12 +368,10 @@ void sendStridedBuffer(float *srcBuf, int srcWidth, int srcHeight,
   for (int j = 0; j < sendHeight; j++) {
     int bPos = j * sendWidth;
     int rPos = j * srcWidth;
-    printf("Send:F:%d\tT:%d\tstart:%d\tbpos:%d\n", fromRank, toRank,
-           srcPos + rPos, bPos);
     memcpy((void *)(buffer + bPos), (void *)(startPos + rPos),
            sizeof(float) * sendWidth);
   }
-  MPI_Send(startPos, count, MPI_FLOAT, toRank, msgTag, MPI_COMM_WORLD);
+  MPI_Send(buffer, count, MPI_FLOAT, toRank, msgTag, MPI_COMM_WORLD);
 }
 
 void recvStridedBuffer(float *dstBuf, int dstWidth, int dstHeight,
@@ -388,22 +386,11 @@ void recvStridedBuffer(float *dstBuf, int dstWidth, int dstHeight,
   int count = expectedWidth * expectedHeight;
   float *startPos = dstBuf + dPos;
   float *buffer = (float *)malloc(count * sizeof(float));
-  printf("from:%d\tto:%d\tor:%d\toc:%d\tdPos:%d\teW:%d\n", fromRank, toRank,
-         dstOffsetRow, dstOffsetColumn, dPos, expectedWidth);
-  // receive a tile's buffer and copy back into the output buffer d
-  // recvStridedBuffer(d, global_width, global_height, t->xloc,
-  //                   t->yloc, // offset of this tile
-  //                   t->width,
-  //                   t->height, // how much data coming from this tile
-  //                   t->tileRank, myrank);
-
   MPI_Recv(buffer, count, MPI_FLOAT, fromRank, msgTag, MPI_COMM_WORLD, &stat);
 
   for (int j = 0; j < expectedHeight; j++) {
     int bPos = j * expectedWidth;
     int rPos = j * dstWidth;
-    printf("Recv:F:%d\tT:%d\tstart:%d\tbpos:%d\n", fromRank, toRank, dPos + rPos,
-           bPos);
     memcpy((void *)(startPos + rPos), (void *)(buffer + bPos),
            sizeof(float) * expectedWidth);
   }
@@ -484,17 +471,17 @@ void scatterAllTiles(int myrank, vector<vector<Tile2D>> &tileArray, float *s,
         } else // rather then have rank 0 send to rank 0, just do a strided copy
                // into a tile's input buffer
         {
-          // t->inputBuffer.resize(t->width * t->height);
-          // t->outputBuffer.resize(t->width * t->height);
+          t->inputBuffer.resize(t->width * t->height);
+          t->outputBuffer.resize(t->width * t->height);
 
-          // off_t s_offset = 0, d_offset = 0;
-          // float *d = t->inputBuffer.data();
+          off_t s_offset = 0, d_offset = 0;
+          float *d = t->inputBuffer.data();
 
-          // for (int j = 0; j < t->height;
-          //      j++, s_offset += global_width, d_offset += t->width) {
-          //   memcpy((void *)(d + d_offset), (void *)(s + s_offset),
-          //          sizeof(float) * t->width);
-          // }
+          for (int j = 0; j < t->height;
+               j++, s_offset += global_width, d_offset += t->width) {
+            memcpy((void *)(d + d_offset), (void *)(s + s_offset),
+                   sizeof(float) * t->width);
+          }
         }
       }
     }
@@ -542,15 +529,15 @@ void gatherAllTiles(int myrank, vector<vector<Tile2D>> &tileArray, float *d,
                             t->tileRank, myrank);
         } else // copy from a tile owned by rank 0 back into the main buffer
         {
-          // float *s = t->outputBuffer.data();
-          // off_t s_offset = 0, d_offset = 0;
-          // d_offset = t->yloc * global_width + t->xloc;
+          float *s = t->outputBuffer.data();
+          off_t s_offset = 0, d_offset = 0;
+          d_offset = t->yloc * global_width + t->xloc;
 
-          // for (int j = 0; j < t->height;
-          //      j++, s_offset += t->width, d_offset += global_width) {
-          //   memcpy((void *)(d + d_offset), (void *)(s + s_offset),
-          //          sizeof(float) * t->width);
-          // }
+          for (int j = 0; j < t->height;
+               j++, s_offset += t->width, d_offset += global_width) {
+            memcpy((void *)(d + d_offset), (void *)(s + s_offset),
+                   sizeof(float) * t->width);
+          }
         }
       }
     }
