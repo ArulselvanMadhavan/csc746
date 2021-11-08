@@ -343,34 +343,48 @@ void writeOutputFile(AppState &as) {
 
 #if 1
   // create the landing buffer for the input data
-  size_t nitems = as.global_mesh_size[1] * as.global_mesh_size[0];
-  // size_t nitems = as.output_data_floats.size();
+  // size_t nitems = as.global_mesh_size[1] * as.global_mesh_size[0];
+  size_t nitems = as.output_data_floats.size();
   vector<unsigned char> buf(nitems);
 
   // now convert from byte, in range 0..255, to float, in range 0..1
-  // transform(as.output_data_floats.begin(), as.output_data_floats.end(),
-            // buf.begin(), floatNormalize);
-  float *out = as.output_data_floats.data();
-  int Gw = as.global_mesh_size[0] + 2 * nhalo;
-  int Gh = as.global_mesh_size[1] + 2 * nhalo;
+  transform(as.output_data_floats.begin(), as.output_data_floats.end(),
+            buf.begin(), floatNormalize);
+  // float *out = as.output_data_floats.data();
+  // int Gw = as.global_mesh_size[0] + 2 * nhalo;
+  // int Gh = as.global_mesh_size[1] + 2 * nhalo;
 
-  int out_off = (nhalo * Gw) + nhalo;
-  for (int j = 0; j < as.global_mesh_size[1]; j++) {
-    int b_off = j * as.global_mesh_size[0];
-    int o_off = out_off + (j * Gw);
-    // printf("b_off:%d\to_off:%d\n", b_off, o_off);
-    for (int i = 0; i < as.global_mesh_size[0]; i++) {
-      int bPos = b_off + i;
-      int oPos = o_off + i;
+  // int out_off = (nhalo * Gw) + nhalo;
+  // for (int j = 0; j < as.global_mesh_size[1]; j++) {
+  //   int b_off = j * as.global_mesh_size[0];
+  //   int o_off = out_off + (j * Gw);
+  //   // printf("b_off:%d\to_off:%d\n", b_off, o_off);
+  //   for (int i = 0; i < as.global_mesh_size[0]; i++) {
+  //     int bPos = b_off + i;
+  //     int oPos = o_off + i;
 
-      buf[bPos] = floatNormalize(out[oPos]);
-    }
-  }
+  //     buf[bPos] = floatNormalize(out[oPos]);
+  //   }
+  // }
   // write out the byte buffer
   fwrite((const void *)buf.data(), sizeof(unsigned char), nitems, f);
 #endif
 
   fclose(f);
+}
+
+void gsendStridedBuffer(float *srcBuf, int srcW, int srcH, int sendW, int sendH,
+                        int fromRank, int toRank) {
+  int msgTag = 0;
+  int bufcount = sendW * sendH;
+  float *buffer = (float *)malloc(bufcount * sizeof(float));
+  int d_offset = 0;
+  int s_offset = (nhalo * srcW) + nhalo;
+  for (int j = 0; j < sendH; j++, d_offset += sendW, s_offset += srcW) {
+    memcpy((void *)(buffer + d_offset), (void *)(srcBuf + s_offset),
+           (sizeof(float) * sendW));
+  }
+  MPI_Send(buffer, bufcount, MPI_FLOAT, toRank, msgTag, MPI_COMM_WORLD);
 }
 
 void sendStridedBuffer(float *srcBuf, int srcWidth, int srcHeight,
@@ -407,7 +421,8 @@ void recvStridedBuffer(float *dstBuf, int dstWidth, int dstHeight,
   int s_off = 0;
   int Dw = dstWidth + 2 * nhalo;
   int d_off = ((dstOffsetRow + nhalo) * Dw) + (dstOffsetColumn + nhalo);
-  printf("dr:%d\tdc:%d\tstart:%d\n", dstOffsetRow, dstOffsetColumn, d_off);
+  printf("dr:%d\tdc:%d\tstart:%d\n", dstOffsetRow + nhalo,
+         dstOffsetColumn + nhalo, d_off);
   for (int j = 0; j < expectedHeight;
        j++, s_off += expectedWidth, d_off += Dw) {
     printf("Soff:%d\tdoff:%d\teW:%d\n", s_off, d_off, expectedWidth);
@@ -510,7 +525,6 @@ void scatterAllTiles(int myrank, vector<vector<Tile2D>> &tileArray, float *s,
                  "t->inputBuffer->size()=%zu \n",
                  t->tileRank, myrank, t->inputBuffer.size());
 #endif
-
           sendStridedBuffer(s, // ptr to the buffer to send
                             global_width,
                             global_height,       // size of the src buffer
@@ -563,16 +577,13 @@ void gatherAllTiles(int myrank, vector<vector<Tile2D>> &tileArray, float *d,
 #endif
 
       if (myrank != 0 && t->tileRank == myrank) {
-        // send the tile's output buffer to rank 0
-        sendStridedBuffer(t->outputBuffer.data(), // ptr to the buffer to send
-                          t->width, t->height,    // size of the src buffer
-                          0, 0,                   // offset into the send buffer
-                          t->width, t->height,    // size of the buffer to send,
-                          t->tileRank, 0);        // from rank, to rank
+        gsendStridedBuffer(t->outputBuffer.data(), tileW, tileH, t->width,
+                           t->height, t->tileRank, 0);
       } else if (myrank == 0) {
         if (t->tileRank != 0) {
           // receive a tile's buffer and copy back into the output buffer d
-          printf("Collecting output:%d\n", tileSize);
+          printf("Collecting output(buffered output):%d(%dx%d)\n", tileSize,
+                 tileW, tileH);
           recvStridedBuffer(d, global_width, global_height, t->xloc,
                             t->yloc, // offset of this tile
                             t->width,
