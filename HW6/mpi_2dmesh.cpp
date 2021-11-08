@@ -34,6 +34,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstddef>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -47,7 +48,7 @@
 #include "mpi_2dmesh.hpp" // for AppState and Tile2D class
 
 #define DEBUG_TRACE 0
-
+int nhalo = 1;
 int parseArgs(int ac, char *av[], AppState *as) {
   int rstat = 0;
   int c;
@@ -342,14 +343,29 @@ void writeOutputFile(AppState &as) {
 
 #if 1
   // create the landing buffer for the input data
-  size_t nitems = as.output_data_floats.size();
-
+  size_t nitems = as.global_mesh_size[1] * as.global_mesh_size[0];
+  // size_t nitems = as.output_data_floats.size();
   vector<unsigned char> buf(nitems);
 
   // now convert from byte, in range 0..255, to float, in range 0..1
-  transform(as.output_data_floats.begin(), as.output_data_floats.end(),
-            buf.begin(), floatNormalize);
+  // transform(as.output_data_floats.begin(), as.output_data_floats.end(),
+            // buf.begin(), floatNormalize);
+  float *out = as.output_data_floats.data();
+  int Gw = as.global_mesh_size[0] + 2 * nhalo;
+  int Gh = as.global_mesh_size[1] + 2 * nhalo;
 
+  int out_off = (nhalo * Gw) + nhalo;
+  for (int j = 0; j < as.global_mesh_size[1]; j++) {
+    int b_off = j * as.global_mesh_size[0];
+    int o_off = out_off + (j * Gw);
+    // printf("b_off:%d\to_off:%d\n", b_off, o_off);
+    for (int i = 0; i < as.global_mesh_size[0]; i++) {
+      int bPos = b_off + i;
+      int oPos = o_off + i;
+
+      buf[bPos] = floatNormalize(out[oPos]);
+    }
+  }
   // write out the byte buffer
   fwrite((const void *)buf.data(), sizeof(unsigned char), nitems, f);
 #endif
@@ -372,8 +388,8 @@ void sendStridedBuffer(float *srcBuf, int srcWidth, int srcHeight,
     memcpy((void *)(buffer + bPos), (void *)(startPos + rPos),
            sizeof(float) * sendWidth);
   }
-  MPI_Isend(buffer, count, MPI_FLOAT, toRank, msgTag, MPI_COMM_WORLD, &request);
-  MPI_Request_free(&request);
+  MPI_Send(buffer, count, MPI_FLOAT, toRank, msgTag, MPI_COMM_WORLD);
+  // MPI_Request_free(&request);
 }
 
 void recvStridedBuffer(float *dstBuf, int dstWidth, int dstHeight,
@@ -381,19 +397,21 @@ void recvStridedBuffer(float *dstBuf, int dstWidth, int dstHeight,
                        int expectedHeight, int fromRank, int toRank) {
 
   int msgTag = 0;
-  int recvSize[2];
-  MPI_Status stat;
-  MPI_Request request;
-  int dPos = dstOffsetRow * dstWidth + dstOffsetColumn;
-  int count = expectedWidth * expectedHeight;
-  float *startPos = dstBuf + dPos;
-  float *buffer = (float *)malloc(count * sizeof(float));
-  MPI_Recv(buffer, count, MPI_FLOAT, fromRank, msgTag, MPI_COMM_WORLD, &stat);
+  MPI_Status status[4];
+  MPI_Request request[4];
 
-  for (int j = 0; j < expectedHeight; j++) {
-    int bPos = j * expectedWidth;
-    int rPos = j * dstWidth;
-    memcpy((void *)(startPos + rPos), (void *)(buffer + bPos),
+  int ecount = expectedHeight * expectedWidth;
+  float *buffer = (float *)malloc(ecount * sizeof(float));
+  MPI_Recv(buffer, ecount, MPI_FLOAT, fromRank, msgTag, MPI_COMM_WORLD,
+           &status[0]);
+  int s_off = 0;
+  int Dw = dstWidth + 2 * nhalo;
+  int d_off = ((dstOffsetRow + nhalo) * Dw) + (dstOffsetColumn + nhalo);
+  printf("dr:%d\tdc:%d\tstart:%d\n", dstOffsetRow, dstOffsetColumn, d_off);
+  for (int j = 0; j < expectedHeight;
+       j++, s_off += expectedWidth, d_off += Dw) {
+    printf("Soff:%d\tdoff:%d\teW:%d\n", s_off, d_off, expectedWidth);
+    memcpy((void *)(dstBuf + d_off), (void *)(buffer + s_off),
            sizeof(float) * expectedWidth);
   }
 }
@@ -434,12 +452,20 @@ void sobelAllTiles(int myrank, vector<vector<Tile2D>> &tileArray) {
         float *in = t->inputBuffer.data();
         float *out = t->outputBuffer.data();
         int dims[2] = {t->width, t->height};
-        for (int y = 1; y < dims[1] - 1; y++) {
-          for (int x = 1; x < dims[0] - 1; x++) {
+        int ghdims[2] = {t->width + 2 * nhalo, t->height + 2 * nhalo};
+        // for (int y = 1; y < dims[1] - 1; y++) {
+        //   for (int x = 1; x < dims[0] - 1; x++) {
 
-            int outIdx = y * dims[0] + x;
+        //     int outIdx = y * dims[0] + x;
+        //     // out[outIdx] = in[outIdx];
+        //     out[outIdx] = sobel_filtered_pixel(in, x, y, dims, Gx, Gy);
+        //   }
+        // }
+        for (int y = 0; y < ghdims[1]; y++) {
+          int off = y * ghdims[0];
+          for (int x = 0; x < ghdims[0]; x++) {
+            int outIdx = off + x;
             out[outIdx] = in[outIdx];
-            // out[outIdx] = sobel_filtered_pixel(in, x, y, dims, Gx, Gy);
           }
         }
       }
@@ -456,22 +482,22 @@ void scatterAllTiles(int myrank, vector<vector<Tile2D>> &tileArray, float *s,
   for (int row = 0; row < tileArray.size(); row++) {
     for (int col = 0; col < tileArray[row].size(); col++) {
       Tile2D *t = &(tileArray[row][col]);
-      int tileW = t->width + t->ghost_xmax + t->ghost_xmin;
-      int tileH = t->height + t->ghost_ymax + t->ghost_ymin;
+      int tileW = t->width + 2 * nhalo;
+      int tileH = t->height + 2 * nhalo;
       int tileSize = tileW * tileH;
       if (myrank != 0 && t->tileRank == myrank) {
         int fromRank = 0;
 
         // receive a tile's buffer
-        t->inputBuffer.resize(tileSize);
-        t->outputBuffer.resize(tileSize);
+        t->inputBuffer.resize(tileSize, 0);
+        t->outputBuffer.resize(tileSize, 0);
 #if DEBUG_TRACE
         printf("scatterAllTiles() receive side:: t->tileRank=%d, myrank=%d, "
                "t->inputBuffer->size()=%zu, t->outputBuffersize()=%zu \n",
                t->tileRank, myrank, t->inputBuffer.size(),
                t->outputBuffer.size());
 #endif
-	// recvStridedBuf(t->inputBuffer.data());
+        printf("Sending data:%d", tileSize);
         recvStridedBuffer(
             t->inputBuffer.data(), t->width, t->height, 0,
             0, // offset into the tile buffer: we want the whole thing
@@ -494,14 +520,14 @@ void scatterAllTiles(int myrank, vector<vector<Tile2D>> &tileArray, float *s,
         } else // rather then have rank 0 send to rank 0, just do a strided copy
                // into a tile's input buffer
         {
-          t->inputBuffer.resize(t->width * t->height);
-          t->outputBuffer.resize(t->width * t->height);
+          t->inputBuffer.resize(tileSize, 0);
+          t->outputBuffer.resize(tileSize, 0);
 
-          off_t s_offset = 0, d_offset = 0;
+          off_t s_offset = 0, d_offset = (nhalo * tileW) + nhalo;
           float *d = t->inputBuffer.data();
 
           for (int j = 0; j < t->height;
-               j++, s_offset += global_width, d_offset += t->width) {
+               j++, s_offset += global_width, d_offset += tileW) {
             memcpy((void *)(d + d_offset), (void *)(s + s_offset),
                    sizeof(float) * t->width);
           }
@@ -524,11 +550,12 @@ void scatterAllTiles(int myrank, vector<vector<Tile2D>> &tileArray, float *s,
 
 void gatherAllTiles(int myrank, vector<vector<Tile2D>> &tileArray, float *d,
                     int global_width, int global_height) {
-
   for (int row = 0; row < tileArray.size(); row++) {
     for (int col = 0; col < tileArray[row].size(); col++) {
       Tile2D *t = &(tileArray[row][col]);
-
+      int tileW = t->width + 2 * nhalo;
+      int tileH = t->height + 2 * nhalo;
+      int tileSize = tileW * tileH;
 #if DEBUG_TRACE
       printf("gatherAllTiles(): t->tileRank=%d, myrank=%d, "
              "t->outputBuffer->size()=%zu \n",
@@ -545,6 +572,7 @@ void gatherAllTiles(int myrank, vector<vector<Tile2D>> &tileArray, float *d,
       } else if (myrank == 0) {
         if (t->tileRank != 0) {
           // receive a tile's buffer and copy back into the output buffer d
+          printf("Collecting output:%d\n", tileSize);
           recvStridedBuffer(d, global_width, global_height, t->xloc,
                             t->yloc, // offset of this tile
                             t->width,
@@ -553,11 +581,12 @@ void gatherAllTiles(int myrank, vector<vector<Tile2D>> &tileArray, float *d,
         } else // copy from a tile owned by rank 0 back into the main buffer
         {
           float *s = t->outputBuffer.data();
-          off_t s_offset = 0, d_offset = 0;
-          d_offset = t->yloc * global_width + t->xloc;
+          int Gw = global_width + 2 * nhalo;
+          off_t s_offset = (nhalo * tileW) + nhalo,
+                d_offset = ((t->yloc + nhalo) * Gw) + (t->xloc + nhalo);
 
           for (int j = 0; j < t->height;
-               j++, s_offset += t->width, d_offset += global_width) {
+               j++, s_offset += tileW, d_offset += Gw) {
             memcpy((void *)(d + d_offset), (void *)(s + s_offset),
                    sizeof(float) * t->width);
           }
@@ -655,11 +684,11 @@ int main(int ac, char *av[]) {
     elapsed_sobel_time = end_time - start_time;
 
     // ----------- gather processing
-
+    int Gw = as.global_mesh_size[0] + 2 * nhalo;
+    int Gh = as.global_mesh_size[1] + 2 * nhalo;
     // create output buffer space on rank 0
     if (as.myrank == 0) {
-      as.output_data_floats.resize(as.global_mesh_size[0] *
-                                   as.global_mesh_size[1]);
+      as.output_data_floats.resize(Gw * Gh);
       // initialize to a known value outside the range of expected values
       std::fill(as.output_data_floats.begin(), as.output_data_floats.end(),
                 -1.0);

@@ -93,7 +93,7 @@ public:
     width = xsize; // specify the width, height of the tile's base grid/buffer
     height = ysize;
     tileRank = rank;
-    ghost_xmin = ghost_xmax = ghost_ymin = ghost_ymax = 1;
+    // ghost_xmin = ghost_xmax = ghost_ymin = ghost_ymax = 1;
 
     inputBuffer.resize(0); // start with empty tiles
     outputBuffer.resize(0);
@@ -102,8 +102,9 @@ public:
     nrght = (nx < nX - 1) ? rank + 1 : MPI_PROC_NULL;
     ntop = (ny > 0) ? rank - nX : MPI_PROC_NULL;
     nbot = (ny < nY - 1) ? rank + nX : MPI_PROC_NULL;
-    printf("Rank:%d\tnl:%d\tnr:%d\tnt:%d\tnb:%d\txoff:%d\tyoff:%d\n", rank,
-           nleft, nrght, ntop, nbot, tx, ty);
+    // printf("Rank:%d\tnl:%d\tnr:%d\tnt:%d\tnb:%d\txoff:%d\tyoff:%d\n", rank,
+    //        nleft, nrght, ntop, nbot, tx, ty);
+    
     // printf("Creating a Tile2D at (%d, %d) of size (%d, %d) for rank %d \n",
     // xloc, yloc, width, height, tileRank);
   }
