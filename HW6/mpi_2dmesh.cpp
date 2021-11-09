@@ -421,11 +421,11 @@ void recvStridedBuffer(float *dstBuf, int dstWidth, int dstHeight,
   int s_off = 0;
   int Dw = dstWidth + 2 * nhalo;
   int d_off = ((dstOffsetRow + nhalo) * Dw) + (dstOffsetColumn + nhalo);
-  printf("dr:%d\tdc:%d\tstart:%d\n", dstOffsetRow + nhalo,
-         dstOffsetColumn + nhalo, d_off);
+  // printf("dr:%d\tdc:%d\tstart:%d\n", dstOffsetRow + nhalo,
+  // dstOffsetColumn + nhalo, d_off);
   for (int j = 0; j < expectedHeight;
        j++, s_off += expectedWidth, d_off += Dw) {
-    printf("Soff:%d\tdoff:%d\teW:%d\n", s_off, d_off, expectedWidth);
+    // printf("Soff:%d\tdoff:%d\teW:%d\n", s_off, d_off, expectedWidth);
     memcpy((void *)(dstBuf + d_off), (void *)(buffer + s_off),
            sizeof(float) * expectedWidth);
   }
@@ -582,8 +582,8 @@ void gatherAllTiles(int myrank, vector<vector<Tile2D>> &tileArray, float *d,
       } else if (myrank == 0) {
         if (t->tileRank != 0) {
           // receive a tile's buffer and copy back into the output buffer d
-          printf("Collecting output(buffered output):%d(%dx%d)\n", tileSize,
-                 tileW, tileH);
+          // printf("Collecting output(buffered output):%d(%dx%d)\n", tileSize,
+          // tileW, tileH);
           recvStridedBuffer(d, global_width, global_height, t->xloc,
                             t->yloc, // offset of this tile
                             t->width,
@@ -607,6 +607,11 @@ void gatherAllTiles(int myrank, vector<vector<Tile2D>> &tileArray, float *d,
   } // loop over 2D array of tiles
 }
 
+void ghost_update() {
+  // Lookup scatter impl
+  // Iterate over 2d tile vector
+}
+
 int main(int ac, char *av[]) {
 
   AppState as;
@@ -614,8 +619,8 @@ int main(int ac, char *av[]) {
 
   std::chrono::time_point<std::chrono::high_resolution_clock> start_time,
       end_time;
-  std::chrono::duration<double> elapsed_scatter_time, elapsed_sobel_time,
-      elapsed_gather_time;
+  std::chrono::duration<double> elapsed_scatter_time, elapsed_ghost_time,
+      elapsed_sobel_time, elapsed_gather_time;
 
   MPI_Init(&ac, &av);
 
@@ -684,6 +689,12 @@ int main(int ac, char *av[]) {
     // ----------- the actual processing
     MPI_Barrier(MPI_COMM_WORLD);
 
+    start_time = std::chrono::high_resolution_clock::now();
+    ghost_update();
+    MPI_Barrier(MPI_COMM_WORLD);
+    end_time = std::chrono::high_resolution_clock::now();
+    elapsed_ghost_time = end_time - start_time;
+
     // start the timer
     start_time = std::chrono::high_resolution_clock::now();
 
@@ -732,6 +743,8 @@ int main(int ac, char *av[]) {
     printf("\n\nTiming results from rank 0: \n");
     printf("\tScatter time:\t%6.4f (ms) \n",
            (elapsed_scatter_time * 1000.0).count());
+    printf("\n\nGhost time:\t%6.4f (ms) \n",
+           (elapsed_ghost_time * 1000.0).count());
     printf("\tSobel time:\t%6.4f (ms) \n",
            (elapsed_sobel_time * 1000.0).count());
     printf("\tGather time:\t%6.4f (ms) \n",
