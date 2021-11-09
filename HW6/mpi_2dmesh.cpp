@@ -48,7 +48,7 @@
 #include "mpi_2dmesh.hpp" // for AppState and Tile2D class
 
 #define DEBUG_TRACE 0
-int nhalo = 1;
+    int nhalo = 1;
 int parseArgs(int ac, char *av[], AppState *as) {
   int rstat = 0;
   int c;
@@ -512,7 +512,6 @@ void scatterAllTiles(int myrank, vector<vector<Tile2D>> &tileArray, float *s,
                t->tileRank, myrank, t->inputBuffer.size(),
                t->outputBuffer.size());
 #endif
-        printf("Sending data:%d", tileSize);
         recvStridedBuffer(
             t->inputBuffer.data(), t->width, t->height, 0,
             0, // offset into the tile buffer: we want the whole thing
@@ -607,9 +606,17 @@ void gatherAllTiles(int myrank, vector<vector<Tile2D>> &tileArray, float *d,
   } // loop over 2D array of tiles
 }
 
-void ghost_update() {
+void ghost_update(int myRank, vector<vector<Tile2D>> &tileArray) {
   // Lookup scatter impl
   // Iterate over 2d tile vector
+  for (int row = 0; row < tileArray.size(); row++) {
+    for (int col = 0; col < tileArray[row].size(); col++) {
+      Tile2D *t = &(tileArray[row][col]);
+      if (t->tileRank == myRank) {
+        printf("%d\tUpdating ghost\n", myRank);
+      }
+    }
+  }
 }
 
 int main(int ac, char *av[]) {
@@ -690,7 +697,7 @@ int main(int ac, char *av[]) {
     MPI_Barrier(MPI_COMM_WORLD);
 
     start_time = std::chrono::high_resolution_clock::now();
-    ghost_update();
+    ghost_update(myrank, tileArray);
     MPI_Barrier(MPI_COMM_WORLD);
     end_time = std::chrono::high_resolution_clock::now();
     elapsed_ghost_time = end_time - start_time;
@@ -743,7 +750,7 @@ int main(int ac, char *av[]) {
     printf("\n\nTiming results from rank 0: \n");
     printf("\tScatter time:\t%6.4f (ms) \n",
            (elapsed_scatter_time * 1000.0).count());
-    printf("\n\nGhost time:\t%6.4f (ms) \n",
+    printf("\tGhost time:\t%6.4f (ms) \n",
            (elapsed_ghost_time * 1000.0).count());
     printf("\tSobel time:\t%6.4f (ms) \n",
            (elapsed_sobel_time * 1000.0).count());
