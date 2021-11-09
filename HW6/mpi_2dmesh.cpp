@@ -48,7 +48,7 @@
 #include "mpi_2dmesh.hpp" // for AppState and Tile2D class
 
 #define DEBUG_TRACE 0
-    int nhalo = 1;
+int nhalo = 1;
 int parseArgs(int ac, char *av[], AppState *as) {
   int rstat = 0;
   int c;
@@ -343,29 +343,29 @@ void writeOutputFile(AppState &as) {
 
 #if 1
   // create the landing buffer for the input data
-  // size_t nitems = as.global_mesh_size[1] * as.global_mesh_size[0];
-  size_t nitems = as.output_data_floats.size();
+  size_t nitems = as.global_mesh_size[1] * as.global_mesh_size[0];
+  // size_t nitems = as.output_data_floats.size();
   vector<unsigned char> buf(nitems);
 
   // now convert from byte, in range 0..255, to float, in range 0..1
-  transform(as.output_data_floats.begin(), as.output_data_floats.end(),
-            buf.begin(), floatNormalize);
-  // float *out = as.output_data_floats.data();
-  // int Gw = as.global_mesh_size[0] + 2 * nhalo;
-  // int Gh = as.global_mesh_size[1] + 2 * nhalo;
+  // transform(as.output_data_floats.begin(), as.output_data_floats.end(),
+  // buf.begin(), floatNormalize);
+  float *out = as.output_data_floats.data();
+  int Gw = as.global_mesh_size[0] + 2 * nhalo;
+  int Gh = as.global_mesh_size[1] + 2 * nhalo;
 
-  // int out_off = (nhalo * Gw) + nhalo;
-  // for (int j = 0; j < as.global_mesh_size[1]; j++) {
-  //   int b_off = j * as.global_mesh_size[0];
-  //   int o_off = out_off + (j * Gw);
-  //   // printf("b_off:%d\to_off:%d\n", b_off, o_off);
-  //   for (int i = 0; i < as.global_mesh_size[0]; i++) {
-  //     int bPos = b_off + i;
-  //     int oPos = o_off + i;
+  int out_off = (nhalo * Gw) + nhalo;
+  for (int j = 0; j < as.global_mesh_size[1]; j++) {
+    int b_off = j * as.global_mesh_size[0];
+    int o_off = out_off + (j * Gw);
+    // printf("b_off:%d\to_off:%d\n", b_off, o_off);
+    for (int i = 0; i < as.global_mesh_size[0]; i++) {
+      int bPos = b_off + i;
+      int oPos = o_off + i;
 
-  //     buf[bPos] = floatNormalize(out[oPos]);
-  //   }
-  // }
+      buf[bPos] = floatNormalize(out[oPos]);
+    }
+  }
   // write out the byte buffer
   fwrite((const void *)buf.data(), sizeof(unsigned char), nitems, f);
 #endif
@@ -476,11 +476,12 @@ void sobelAllTiles(int myrank, vector<vector<Tile2D>> &tileArray) {
         //     out[outIdx] = sobel_filtered_pixel(in, x, y, dims, Gx, Gy);
         //   }
         // }
-        for (int y = 0; y < ghdims[1]; y++) {
+        for (int y = nhalo; y < dims[1] + nhalo; y++) {
           int off = y * ghdims[0];
-          for (int x = 0; x < ghdims[0]; x++) {
+          for (int x = nhalo; x < dims[0] + nhalo; x++) {
             int outIdx = off + x;
-            out[outIdx] = in[outIdx];
+            // out[outIdx] = in[outIdx];
+            out[outIdx] = sobel_filtered_pixel(in, x, y, ghdims, Gx, Gy);
           }
         }
       }
@@ -612,8 +613,103 @@ void ghost_update(int myRank, vector<vector<Tile2D>> &tileArray) {
   for (int row = 0; row < tileArray.size(); row++) {
     for (int col = 0; col < tileArray[row].size(); col++) {
       Tile2D *t = &(tileArray[row][col]);
+      int tileH = t->height + 2 * nhalo;
+      int tileW = t->width + 2 * nhalo;
       if (t->tileRank == myRank) {
-        printf("%d\tUpdating ghost\n", myRank);
+        MPI_Request request[4];
+        MPI_Status status[4];
+        int bufcount = tileH * nhalo;
+        float xbuf_left_send[bufcount];
+        float xbuf_left_recv[bufcount];
+        float xbuf_rght_send[bufcount];
+        float xbuf_rght_recv[bufcount];
+
+        float *in = t->inputBuffer.data();
+        float *out = t->outputBuffer.data();
+
+        if (t->nleft != MPI_PROC_NULL) {
+          int icount = 0;
+          int s_off = nhalo;
+          for (int j = 0; j < tileH; j++, s_off += tileW) {
+            for (int ll = 0; ll < nhalo; ll++) {
+              xbuf_left_send[icount] = in[s_off + ll];
+              icount++;
+            }
+          }
+        }
+        if (t->nrght != MPI_PROC_NULL) {
+          int icount = 0;
+          int s_off = nhalo + t->width - nhalo;
+          for (int j = 0; j < tileH; j++, s_off += tileW) {
+            for (int ll = 0; ll < nhalo; ll++) {
+              xbuf_rght_send[icount] = in[s_off + ll];
+              icount++;
+            }
+          }
+        }
+        MPI_Irecv(&xbuf_rght_recv, bufcount, MPI_FLOAT, t->nrght, 1001,
+                  MPI_COMM_WORLD, &request[0]);
+        MPI_Isend(&xbuf_left_send, bufcount, MPI_FLOAT, t->nleft, 1001,
+                  MPI_COMM_WORLD, &request[1]);
+        MPI_Irecv(&xbuf_left_recv, bufcount, MPI_FLOAT, t->nleft, 1002,
+                  MPI_COMM_WORLD, &request[2]);
+        MPI_Isend(&xbuf_rght_send, bufcount, MPI_FLOAT, t->nrght, 1002,
+                  MPI_COMM_WORLD, &request[3]);
+        MPI_Waitall(4, request, status);
+
+        if (t->nrght != MPI_PROC_NULL) {
+          int icount = 0;
+          int d_off = nhalo + t->width;
+          for (int j = 0; j < tileH; j++, d_off += tileW) {
+            for (int ll = 0; ll < nhalo; ll++) {
+              in[d_off + ll] = xbuf_rght_recv[icount];
+              icount++;
+            }
+          }
+        }
+        if (t->nleft != MPI_PROC_NULL) {
+          int icount = 0;
+          int d_off = 0;
+          for (int j = 0; j < tileH; j++, d_off += tileW) {
+            for (int ll = 0; ll < nhalo; ll++) {
+              in[d_off + ll] = xbuf_left_recv[icount];
+              icount++;
+            }
+          }
+        }
+
+        bufcount = tileW * nhalo;
+        float xbuf_top_recv[bufcount];
+        float xbuf_top_send[bufcount];
+        float xbuf_bot_recv[bufcount];
+        float xbuf_bot_send[bufcount];
+        if (t->ntop != MPI_PROC_NULL) {
+          int s_off = nhalo * tileW;
+          memcpy((void *)xbuf_top_send, (void *)(in + s_off),
+                 sizeof(float) * bufcount);
+        }
+        if (t->nbot != MPI_PROC_NULL) {
+          int s_off = (nhalo + t->height - nhalo) * tileW;
+          memcpy((void *)xbuf_bot_send, (void *)(in + s_off),
+                 sizeof(float) * bufcount);
+        }
+        MPI_Irecv(xbuf_top_recv, bufcount, MPI_FLOAT, t->ntop, 1002,
+                  MPI_COMM_WORLD, &request[0]);
+        MPI_Isend(xbuf_bot_send, bufcount, MPI_FLOAT, t->nbot, 1002,
+                  MPI_COMM_WORLD, &request[1]);
+
+        MPI_Isend(xbuf_top_send, bufcount, MPI_FLOAT, t->ntop, 1001,
+                  MPI_COMM_WORLD, &request[2]);
+        MPI_Irecv(xbuf_bot_recv, bufcount, MPI_FLOAT, t->nbot, 1001,
+                  MPI_COMM_WORLD, &request[3]);
+        MPI_Waitall(4, request, status);
+        if (t->ntop != MPI_PROC_NULL) {
+          memcpy((void *)(in), (void *)xbuf_top_recv, sizeof(float) * bufcount);
+        }
+        if (t->nbot != MPI_PROC_NULL) {
+          memcpy((void *)(in + (nhalo + t->height) * tileW), xbuf_bot_recv,
+                 sizeof(float) * bufcount);
+        }
       }
     }
   }
