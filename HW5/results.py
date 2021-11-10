@@ -30,7 +30,6 @@ def sobel_cpu_chart():
     plt.xlabel("Number of threads")
     plt.ylabel("Elapsed time")
     plt.plot([el_times[t] for t in sorted_t_indices],linestyle='solid', marker='x')
-    # nThreadsArr.sort()
     print(nThreadsArr)
     print(el_times)
     save_pdf("sobel_cpu")

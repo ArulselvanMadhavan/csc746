@@ -130,9 +130,11 @@ export LD_LIBRARY_PATH="$HOME/.local/lib/:$LD_LIBRARY_PATH"
 rm -rf build/ && mkdir build && cd build && cmake ../ -DCMAKE_CXX_COMPILER=$HOME/.local/bin/clang++
 '''
 # Instructions to run on Cori
+- Load the required modules
 - rm -rf build/ && mkdir build && cd build && cmake ../
 - cp scripts/skeleton-gpu-batch-script.sh build/
 - cd build
 - uncomment lines for the implementation being tested
 - results will be saved in logs/ directory
 - python results.py shows how tables and charts were produced
+- I had to remove the data folder to keep the tarball under 10MB. So, please download the data folder and place it inside HW5 directory

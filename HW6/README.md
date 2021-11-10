@@ -133,3 +133,6 @@ Mac-side Quartz configuration issue.
 If this issue affects you, you might want to consider trying NX to remote desktop
 to Cori. See https://docs.nersc.gov/connect/nx/ for more information.
 
+# Steps to run
+- rm -rf build && mkdir build && cd build && cmake ../ && make &&  bash ../scripts/run_script.sh ./mpi_2dmesh > ../output.txt 2>&1
+- 

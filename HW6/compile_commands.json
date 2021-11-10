@@ -1,7 +1,7 @@
 [
 {
-  "directory": "/home/arul/dev/csc746/HW6/build",
-  "command": "/usr/bin/c++   -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include  -O3 -DNDEBUG   -o CMakeFiles/mpi_2dmesh.dir/mpi_2dmesh.cpp.o -c /home/arul/dev/csc746/HW6/mpi_2dmesh.cpp",
-  "file": "/home/arul/dev/csc746/HW6/mpi_2dmesh.cpp"
+  "directory": "/Users/arul.madhavan/dev/csc746/HW6/build",
+  "command": "/usr/local/opt/llvm@13/bin/clang++  -I/usr/local/Cellar/open-mpi/4.1.1_2/include -O3 -DNDEBUG -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk -mmacosx-version-min=11.2 -o CMakeFiles/mpi_2dmesh.dir/mpi_2dmesh.cpp.o -c /Users/arul.madhavan/dev/csc746/HW6/mpi_2dmesh.cpp",
+  "file": "/Users/arul.madhavan/dev/csc746/HW6/mpi_2dmesh.cpp"
 }
 ]

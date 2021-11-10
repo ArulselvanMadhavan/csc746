@@ -358,7 +358,6 @@ void writeOutputFile(AppState &as) {
   for (int j = 0; j < as.global_mesh_size[1]; j++) {
     int b_off = j * as.global_mesh_size[0];
     int o_off = out_off + (j * Gw);
-    // printf("b_off:%d\to_off:%d\n", b_off, o_off);
     for (int i = 0; i < as.global_mesh_size[0]; i++) {
       int bPos = b_off + i;
       int oPos = o_off + i;
@@ -376,6 +375,7 @@ void writeOutputFile(AppState &as) {
 void gsendStridedBuffer(float *srcBuf, int srcW, int srcH, int sendW, int sendH,
                         int fromRank, int toRank) {
   int msgTag = 0;
+  MPI_Request request;
   int bufcount = sendW * sendH;
   float *buffer = (float *)malloc(bufcount * sizeof(float));
   int d_offset = 0;
@@ -384,7 +384,8 @@ void gsendStridedBuffer(float *srcBuf, int srcW, int srcH, int sendW, int sendH,
     memcpy((void *)(buffer + d_offset), (void *)(srcBuf + s_offset),
            (sizeof(float) * sendW));
   }
-  MPI_Send(buffer, bufcount, MPI_FLOAT, toRank, msgTag, MPI_COMM_WORLD);
+  MPI_Isend(buffer, bufcount, MPI_FLOAT, toRank, msgTag, MPI_COMM_WORLD, &request);
+  MPI_Request_free(&request);
 }
 
 void sendStridedBuffer(float *srcBuf, int srcWidth, int srcHeight,
@@ -402,8 +403,8 @@ void sendStridedBuffer(float *srcBuf, int srcWidth, int srcHeight,
     memcpy((void *)(buffer + bPos), (void *)(startPos + rPos),
            sizeof(float) * sendWidth);
   }
-  MPI_Send(buffer, count, MPI_FLOAT, toRank, msgTag, MPI_COMM_WORLD);
-  // MPI_Request_free(&request);
+  MPI_Isend(buffer, count, MPI_FLOAT, toRank, msgTag, MPI_COMM_WORLD, &request);
+  MPI_Request_free(&request);
 }
 
 void recvStridedBuffer(float *dstBuf, int dstWidth, int dstHeight,
@@ -421,11 +422,8 @@ void recvStridedBuffer(float *dstBuf, int dstWidth, int dstHeight,
   int s_off = 0;
   int Dw = dstWidth + 2 * nhalo;
   int d_off = ((dstOffsetRow + nhalo) * Dw) + (dstOffsetColumn + nhalo);
-  // printf("dr:%d\tdc:%d\tstart:%d\n", dstOffsetRow + nhalo,
-  // dstOffsetColumn + nhalo, d_off);
   for (int j = 0; j < expectedHeight;
        j++, s_off += expectedWidth, d_off += Dw) {
-    // printf("Soff:%d\tdoff:%d\teW:%d\n", s_off, d_off, expectedWidth);
     memcpy((void *)(dstBuf + d_off), (void *)(buffer + s_off),
            sizeof(float) * expectedWidth);
   }
@@ -742,8 +740,8 @@ int main(int ac, char *av[]) {
   char hostname[256];
   gethostname(hostname, sizeof(hostname));
 
-  printf("\nHello world, I'm rank %d of %d total ranks running on <%s>\n",
-         as.myrank, as.nranks, hostname);
+  // printf("\nHello world, I'm rank %d of %d total ranks running on <%s>\n",
+         // as.myrank, as.nranks, hostname);
   MPI_Barrier(MPI_COMM_WORLD);
 
 #if DEBUG_TRACE
