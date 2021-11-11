@@ -1,0 +1,195 @@
+ srun -n 4 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 1  
+srun: Warning: can't run 4 processes on 5 nodes, setting nnodes to 4
+
+
+Timing results from rank 0: 
+	Scatter time:	297.1446 (ms) 
+	Ghost time:	9.3955 (ms) 
+	Sobel time:	396.8395 (ms) 
+	Gather time:	159.9882 (ms) 
+ srun -n 4 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 2  
+srun: Warning: can't run 4 processes on 5 nodes, setting nnodes to 4
+
+
+Timing results from rank 0: 
+	Scatter time:	307.7412 (ms) 
+	Ghost time:	4.2315 (ms) 
+	Sobel time:	393.5391 (ms) 
+	Gather time:	164.5057 (ms) 
+ srun -n 4 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 3  
+srun: Warning: can't run 4 processes on 5 nodes, setting nnodes to 4
+
+
+Timing results from rank 0: 
+	Scatter time:	305.7171 (ms) 
+	Ghost time:	2.8642 (ms) 
+	Sobel time:	396.6762 (ms) 
+	Gather time:	162.0556 (ms) 
+ srun -n 9 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 1  
+
+
+Timing results from rank 0: 
+	Scatter time:	283.7466 (ms) 
+	Ghost time:	7.6752 (ms) 
+	Sobel time:	177.4166 (ms) 
+	Gather time:	175.9082 (ms) 
+ srun -n 9 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 2  
+
+
+Timing results from rank 0: 
+	Scatter time:	300.5407 (ms) 
+	Ghost time:	8.5119 (ms) 
+	Sobel time:	175.2271 (ms) 
+	Gather time:	189.3598 (ms) 
+ srun -n 9 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 3  
+
+
+Timing results from rank 0: 
+	Scatter time:	291.5978 (ms) 
+	Ghost time:	8.4979 (ms) 
+	Sobel time:	176.1212 (ms) 
+	Gather time:	181.3940 (ms) 
+ srun -n 16 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 1  
+
+
+Timing results from rank 0: 
+	Scatter time:	313.3291 (ms) 
+	Ghost time:	9.3737 (ms) 
+	Sobel time:	101.7134 (ms) 
+	Gather time:	209.8933 (ms) 
+ srun -n 16 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 2  
+
+
+Timing results from rank 0: 
+	Scatter time:	333.0975 (ms) 
+	Ghost time:	9.0116 (ms) 
+	Sobel time:	100.4053 (ms) 
+	Gather time:	231.4135 (ms) 
+ srun -n 16 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 3  
+
+
+Timing results from rank 0: 
+	Scatter time:	326.2941 (ms) 
+	Ghost time:	16.7645 (ms) 
+	Sobel time:	98.7567 (ms) 
+	Gather time:	218.2001 (ms) 
+ srun -n 25 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 1  
+
+
+Timing results from rank 0: 
+	Scatter time:	354.6542 (ms) 
+	Ghost time:	7.6716 (ms) 
+	Sobel time:	69.2725 (ms) 
+	Gather time:	255.2510 (ms) 
+ srun -n 25 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 2  
+
+
+Timing results from rank 0: 
+	Scatter time:	390.7977 (ms) 
+	Ghost time:	8.2877 (ms) 
+	Sobel time:	65.6816 (ms) 
+	Gather time:	289.2134 (ms) 
+ srun -n 25 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 3  
+
+
+Timing results from rank 0: 
+	Scatter time:	366.7955 (ms) 
+	Ghost time:	6.8501 (ms) 
+	Sobel time:	63.3191 (ms) 
+	Gather time:	267.0406 (ms) 
+ srun -n 36 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 1  
+
+
+Timing results from rank 0: 
+	Scatter time:	408.3581 (ms) 
+	Ghost time:	7.8156 (ms) 
+	Sobel time:	53.9352 (ms) 
+	Gather time:	307.8020 (ms) 
+ srun -n 36 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 2  
+
+
+Timing results from rank 0: 
+	Scatter time:	464.1347 (ms) 
+	Ghost time:	8.3042 (ms) 
+	Sobel time:	48.3389 (ms) 
+	Gather time:	348.6957 (ms) 
+ srun -n 36 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 3  
+
+
+Timing results from rank 0: 
+	Scatter time:	422.7629 (ms) 
+	Ghost time:	8.8209 (ms) 
+	Sobel time:	44.4348 (ms) 
+	Gather time:	322.2536 (ms) 
+ srun -n 49 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 1  
+
+
+Timing results from rank 0: 
+	Scatter time:	483.6715 (ms) 
+	Ghost time:	7.8557 (ms) 
+	Sobel time:	32.7752 (ms) 
+	Gather time:	378.4191 (ms) 
+ srun -n 49 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 2  
+
+
+Timing results from rank 0: 
+	Scatter time:	571.4577 (ms) 
+	Ghost time:	8.4505 (ms) 
+	Sobel time:	33.9052 (ms) 
+	Gather time:	432.4179 (ms) 
+ srun -n 49 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 3  
+
+
+Timing results from rank 0: 
+	Scatter time:	496.8401 (ms) 
+	Ghost time:	11.3968 (ms) 
+	Sobel time:	32.4131 (ms) 
+	Gather time:	395.0002 (ms) 
+ srun -n 64 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 1  
+
+
+Timing results from rank 0: 
+	Scatter time:	568.4534 (ms) 
+	Ghost time:	8.2573 (ms) 
+	Sobel time:	32.5015 (ms) 
+	Gather time:	452.7657 (ms) 
+ srun -n 64 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 2  
+
+
+Timing results from rank 0: 
+	Scatter time:	646.7989 (ms) 
+	Ghost time:	8.9376 (ms) 
+	Sobel time:	26.4922 (ms) 
+	Gather time:	503.7313 (ms) 
+ srun -n 64 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 3  
+
+
+Timing results from rank 0: 
+	Scatter time:	594.7758 (ms) 
+	Ghost time:	8.3952 (ms) 
+	Sobel time:	24.9552 (ms) 
+	Gather time:	477.6954 (ms) 
+ srun -n 81 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 1  
+
+
+Timing results from rank 0: 
+	Scatter time:	657.8095 (ms) 
+	Ghost time:	8.1322 (ms) 
+	Sobel time:	32.5229 (ms) 
+	Gather time:	543.7691 (ms) 
+ srun -n 81 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 2  
+
+
+Timing results from rank 0: 
+	Scatter time:	749.0365 (ms) 
+	Ghost time:	8.6515 (ms) 
+	Sobel time:	33.9782 (ms) 
+	Gather time:	608.8183 (ms) 
+ srun -n 81 ./mpi_2dmesh -i ../data/zebra-gray-int8-4x -x 7112 -y 5146 -g 3  
+
+
+Timing results from rank 0: 
+	Scatter time:	674.7473 (ms) 
+	Ghost time:	12.1119 (ms) 
+	Sobel time:	19.9120 (ms) 
+	Gather time:	571.4855 (ms) 

@@ -1,0 +1,8 @@
+srun: Warning: can't run 1 processes on 5 nodes, setting nnodes to 1
+
+
+Timing results from rank 0: 
+	Scatter time:	380.1033 (ms) 
+	Ghost time:	0.1027 (ms) 
+	Sobel time:	1580.3526 (ms) 
+	Gather time:	33.8012 (ms) 
