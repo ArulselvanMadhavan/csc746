@@ -1,6 +1,27 @@
+#include "hdf5.h"
+#include "hdf5_file_ops.h"
 #include "malloc2D.h"
 #include "mpi.h"
 #include "stdio.h"
+
+void init_array(int ny, int nx, int ng, double **array) {
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  for (int j = 0; j < ny + 2 * ng; j++) {
+    for (int i = 0; i < nx + 2 * ng; i++) {
+      array[j][i] = 0.0;
+    }
+  }
+
+  int icount = 1;
+  for (int j = ng; j < ny + ng; j++) {
+    for (int i = ng; i < nx + ng; i++) {
+      array[j][i] = (double)(icount + 100 * rank);
+      icount++;
+    }
+  }
+}
 
 /* SPMD style */
 int main(int argc, char *argv[]) {
@@ -12,7 +33,7 @@ int main(int argc, char *argv[]) {
 
   /* Split */
   MPI_Comm mpi_hdf5_comm = MPI_COMM_NULL;
-  int nfiles = 2;
+  int nfiles = 1;
   float ranks_per_file = (float)nprocs / (float)nfiles;
   int color = (int)((float)rank / (float)ranks_per_file);
   MPI_Comm_split(comm, color, rank, &mpi_hdf5_comm);
@@ -46,24 +67,53 @@ int main(int argc, char *argv[]) {
   printf("G_off\tRank:%d,nx:%d\tny:%d\n", rank, nx_global, ny_global);
 
   double **data = (double **)malloc2D(ny + 2 * ng, nx + 2 * ng);
-  MPI_Finalize();
-}
+  double **data_restore = (double **)malloc2D(ny + 2 * ng, nx + 2 * ng);
 
-void init_array(int ny, int nx, int ng, double **array) {
-  int rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
+  init_array(ny, nx, ng, data);
   for (int j = 0; j < ny + 2 * ng; j++) {
     for (int i = 0; i < nx + 2 * ng; i++) {
-      array[j][i] = 0.0;
+      data_restore[j][i] = 0.0;
     }
   }
 
-  int icount = 1;
-  for (int j = ng; j < ny + ng; j++) {
-    for (int i = ng; i < nx + ng; i++) {
-      array[j][i] = (double)(icount + 100 * rank);
-      icount++;
+  hid_t memspace = H5S_NULL, filespace = H5S_NULL;
+  hdf5_file_init(ng, ndims, ny_global, nx_global, ny, nx, ny_offset, nx_offset,
+                 mpi_hdf5_comm, &memspace, &filespace);
+
+  char filename[30];
+  if (nfiles > 1) {
+    sprintf(filename, "example_%02d.hdf5", color);
+  } else {
+    sprintf(filename, "example.hdf5");
+  }
+
+  write_hdf5_file(filename, data, memspace, filespace, mpi_hdf5_comm);
+  read_hdf5_file(filename, data_restore, memspace, filespace, mpi_hdf5_comm);
+  hdf5_file_finalize(&memspace, &filespace);
+
+  if (rank == 0)
+    printf("Verifying  checkpoint\n");
+
+  int ierr = 0;
+  // verification
+  for (int j = 0; j < ny + 2 * ng; j++) {
+    for (int i = 0; i < nx + 2 * ng; i++) {
+      if (data_restore[j][i] != data[j][i]) {
+        ierr++;
+        printf("DEBUG -- j %d i %d restored %lf data %lf\n", j, i,
+               data_restore[j][i], data[j][i]);
+      }
     }
   }
+  int ierr_global = 0;
+  MPI_Allreduce(&ierr, &ierr_global, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+  if (rank == 0 && ierr_global == 0)
+    printf("   Checkpoint has been verified\n");
+  free(data);
+  free(data_restore);
+
+  MPI_Comm_free(&mpi_hdf5_comm);
+  MPI_Comm_free(&row_comm);
+  MPI_Comm_free(&col_comm);
+  MPI_Finalize();
 }

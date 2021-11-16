@@ -17,7 +17,7 @@ if (NOT HDF5_IS_PARALLEL)
     message(FATAL_ERROR " -- HDF5 version is not parallel.")
 endif (NOT HDF5_IS_PARALLEL)
 
-add_executable(hdf5block2d hdf5block2d.c)
+add_executable(hdf5block2d hdf5block2d.c hdf5_file_ops.c malloc2D.c)
 
 set(IncludeDirs "${MPI_C_INCLUDE_PATH};${HDF5_C_INCLUDE_DIRS}")
 set_target_properties(hdf5block2d PROPERTIES INCLUDE_DIRECTORIES
