@@ -460,25 +460,15 @@ void sobelAllTiles(int myrank, vector<vector<Tile2D>> &tileArray) {
       Tile2D *t = &(tileArray[row][col]);
 
       if (t->tileRank == myrank) {
-        // std::copy(t->inputBuffer.begin(), t->inputBuffer.end(),
-        // t->outputBuffer.begin());
         float *in = t->inputBuffer.data();
         float *out = t->outputBuffer.data();
         int dims[2] = {t->width, t->height};
         int ghdims[2] = {t->width + 2 * nhalo, t->height + 2 * nhalo};
-        // for (int y = 1; y < dims[1] - 1; y++) {
-        //   for (int x = 1; x < dims[0] - 1; x++) {
 
-        //     int outIdx = y * dims[0] + x;
-        //     // out[outIdx] = in[outIdx];
-        //     out[outIdx] = sobel_filtered_pixel(in, x, y, dims, Gx, Gy);
-        //   }
-        // }
         for (int y = nhalo; y < dims[1] + nhalo; y++) {
           int off = y * ghdims[0];
           for (int x = nhalo; x < dims[0] + nhalo; x++) {
             int outIdx = off + x;
-            // out[outIdx] = in[outIdx];
             out[outIdx] = sobel_filtered_pixel(in, x, y, ghdims, Gx, Gy);
           }
         }

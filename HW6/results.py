@@ -151,7 +151,9 @@ def msgCount(mode, p):
     tmsgs = 0
     if mode == "row":
         for i in range(p):
-            tmsgs += calc_gmsg(i, 0, i, 1, p)
+            gm = calc_gmsg(i, 0, i, 1, p)
+            # print(f"Rank:{i}\tGM:{gm}")
+            tmsgs += gm
     if mode == "column":
         for i in range(p):
             tmsgs += calc_gmsg(i, i, 0, p, 1)
@@ -162,7 +164,9 @@ def msgCount(mode, p):
         rank = 0
         for j in range(py):
             for i in range(px):
-                tmsgs += calc_gmsg(rank, i, j, px, py)
+                gm = calc_gmsg(rank, i, j, px, py)
+                # print(f"Rank:{rank}\tGM:{gm}")
+                tmsgs += gm
                 rank += 1
     tmsgs += p - 1              # Scatter
     tmsgs += p - 1              # Gather
@@ -191,4 +195,4 @@ if __name__ == "__main__":
             data_row.append(total)
             msgs = msgCount(mode, p)
             msg_row.append(msgs)
-        print(f"{p} & {msg_row[0]} & {data_row[0]} & {msg_row[1]} & {data_row[1]} & {msg_row[2]} & {data_row[2]}")
+        print(f"{p} & {msg_row[0]} & {data_row[0]:.2f} & {msg_row[1]} & {data_row[1]:.2f} & {msg_row[2]} & {data_row[2]:.2f} \\\\")
