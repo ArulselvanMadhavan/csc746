@@ -191,4 +191,4 @@ if __name__ == "__main__":
             data_row.append(total)
             msgs = msgCount(mode, p)
             msg_row.append(msgs)
-        print(f"{p} & {msg_row[0]} & {data_row[0]} & {msg_row[1]} & {data_row[1]} & {msg_row[2]} & {data_row[2]}")
+        print(f"{p} & {msg_row[0]:.2f} & {data_row[0]:.2f} & {msg_row[1]:.2f} & {data_row[1]:.2f} & {msg_row[2]:.2f} & {data_row[2]:.2f}")
