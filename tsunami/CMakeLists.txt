@@ -6,7 +6,8 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O3")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_executable(tsunami tsunami.c memory.c)
+add_executable(tsunami tsunami.c memory.c timer.c)
+target_link_libraries(tsunami -lm)
 
 add_custom_command(
         TARGET tsunami POST_BUILD
