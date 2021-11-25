@@ -60,16 +60,6 @@ double calculateMass(double **restrict H) {
   return result;
 }
 
-/* void updateDt(double *deltaT) { */
-/*   *deltaT = 0.5; */
-/* } */
-
-/* int main(int argc, char *argv[]) { */
-/*   double deltaT = 1.0e30; */
-/*   updateDt(&deltaT); */
-/*   printf("DT:%f", deltaT); */
-/* } */
-
 int main(int argc, char *argv[]) {
   printf("Running Shallow Water equations\n");
   /* Height */
@@ -93,6 +83,32 @@ int main(int argc, char *argv[]) {
   double **restrict temp;
 
   initArrays(H, U, V);
+
+  float xwinmin = 0.0 - 2.0;
+  float xwinmax = (float)nx + 2.0;
+  float ywinmin = 0.0 - 12.0;
+  float ywinmax = (float)ny + 2.0;
+  set_graphics_mysize(nx * ny);
+  set_graphics_window(xwinmin, xwinmax, ywinmin, ywinmax);
+  double **restrict dx = malloc2D(ny + 2, nx + 2);
+  double **restrict dy = malloc2D(ny + 2, nx + 2);
+  double **restrict x = malloc2D(ny + 2, nx + 2);
+  double **restrict y = malloc2D(ny + 2, nx + 2);
+  for (int j = 0; j <= ny + 1; j++) {
+    for (int i = 0; i <= nx + 1; i++) {
+      dx[j][i] = 1.0;
+      dy[j][i] = 1.0;
+      x[j][i] = 0.0 + (double)i * 1.0;
+      y[j][i] = 0.0 + (double)j * 1.0;
+    }
+  }
+  set_graphics_cell_coordinates((double *)x, (double *)dx, (double *)y,
+                                (double *)dy);
+  set_data((double *)H);
+  init_graphics_output();
+
+  int graph_num = 0;
+  write_to_file(graph_num, 0, 0.0);
   double origTM = calculateMass(H);
 
   double deltaT = 1.0e30;
@@ -219,11 +235,28 @@ int main(int argc, char *argv[]) {
     printf("Iteration:%5.5d, Time:%f, Timestep:%f Total mass:%f\n", n, time,
            deltaT, TotalMass);
     set_data((double *)H);
-    write_to_file();
+    write_to_file(graph_num, n, time);
+    graph_num++;
   }
-
+  
+  double totaltime = cpu_timer_stop(starttime);
+  printf(" Flow finished in %lf seconds\n", totaltime);
+  
   free(H);
   free(U);
   free(V);
+  free(Hnew);
+  free(Unew);
+  free(Vnew);
+  free(Hx);
+  free(Ux);
+  free(Vx);
+  free(Hy);
+  free(Uy);
+  free(Vy);
+  free(x);
+  free(y);
+  free(dx);
+  free(dy);
   return 0;
 }
