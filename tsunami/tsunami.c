@@ -219,6 +219,7 @@ int main(int argc, char *argv[]) {
     printf("Iteration:%5.5d, Time:%f, Timestep:%f Total mass:%f\n", n, time,
            deltaT, TotalMass);
     set_data((double *)H);
+    write_to_file();
   }
 
   free(H);

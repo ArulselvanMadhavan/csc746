@@ -13,5 +13,10 @@
   "directory": "/home/arul/dev/csc746/tsunami/build",
   "command": "/usr/bin/cc    -g -O3   -std=gnu99 -o CMakeFiles/tsunami.dir/timer.c.o   -c /home/arul/dev/csc746/tsunami/timer.c",
   "file": "/home/arul/dev/csc746/tsunami/timer.c"
+},
+{
+  "directory": "/home/arul/dev/csc746/tsunami/build",
+  "command": "/usr/bin/cc    -g -O3   -std=gnu99 -o CMakeFiles/tsunami.dir/file_ops.c.o   -c /home/arul/dev/csc746/tsunami/file_ops.c",
+  "file": "/home/arul/dev/csc746/tsunami/file_ops.c"
 }
 ]
