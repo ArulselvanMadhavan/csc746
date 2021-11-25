@@ -14,4 +14,7 @@ add_custom_command(
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
 	${CMAKE_SOURCE_DIR}/compile_commands.json
-	DEPENDS CMakeLists.txt)  
+	DEPENDS CMakeLists.txt)
+
+configure_file(${CMAKE_SOURCE_DIR}/generate_image.py generate_image.py)
+configure_file(${CMAKE_SOURCE_DIR}/generate_movie.sh generate_movie.sh)
