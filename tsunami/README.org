@@ -1,0 +1,5 @@
+* Tsunami Simulation
+** Steps to run
+*** Install HDF5
+*** Clang compiler
+*** Python

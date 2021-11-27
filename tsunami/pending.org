@@ -1,0 +1,12 @@
+* Things to do
+** Tsunami Code
+   - [ ] HDF5 - simple file io
+   - [ ] Write H to HDF5
+     - [ ] Send data over network
+     - 
+   - [ ] Convert HDF5 to DATA
+   - [ ] Check for equality
+** Tsunami report
+   - [ ] O3 optimization
+   - [ ] Clang to nvcc
+   - 

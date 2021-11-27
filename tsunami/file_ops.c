@@ -1,4 +1,5 @@
 #include "file_ops.h"
+#include "mpi.h"
 #include "stddef.h"
 #include "stdio.h"
 #include <sys/stat.h>
@@ -49,6 +50,21 @@ void init_graphics_output() {
   }
 }
 
+void parallel_write(int graph_num, int ncycle, double simTime) {
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  int height = 4;
+  MPI_Request req;
+  MPI_Status status;
+  if (rank == 0) {
+    MPI_Isend(&height, 1, MPI_INT, 1, 1001, MPI_COMM_WORLD, &req);
+  } else {
+    MPI_Recv(&height, 1, MPI_INT, 0, 1001, MPI_COMM_WORLD, &status);
+    printf("Rank:%d\tReceived:H:%d\n", rank, height);
+  }
+  /* MPI_Request_free(&req); */
+}
+
 void write_to_file(int graph_num, int ncycle, double simTime) {
   int i;
   int color;
@@ -66,7 +82,8 @@ void write_to_file(int graph_num, int ncycle, double simTime) {
     int xloc, xwid, yloc, ywid;
     int xloc1, xloc2, yloc1, yloc2;
     /* printf("DISPLAY " */
-    /*        "DATA\tstep:%f\tg_xmin:%f\tx_conv:%f\tg_xmax:%f\tg_ymin:%f\tg_ymax:%" */
+    /*        "DATA\tstep:%f\tg_xmin:%f\tx_conv:%f\tg_xmax:%f\tg_ymin:%f\tg_ymax:%"
+     */
     /*        "f\ts_max:%f\ts_min:%f\n", */
     /*        step, graphics_xmin, xconversion, graphics_xmax, graphics_ymin, */
     /*        graphics_ymax, scaleMax, scaleMin); */
