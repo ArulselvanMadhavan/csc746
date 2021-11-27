@@ -4,7 +4,7 @@
 #include "stdio.h"
 #include <sys/stat.h>
 
-static double *data_double = NULL;
+double *data_double = NULL;
 static double xconversion = 0.0;
 static double yconversion = 0.0;
 static int Ncolors = 256;
@@ -50,18 +50,29 @@ void init_graphics_output() {
   }
 }
 
-void parallel_write(int graph_num, int ncycle, double simTime) {
+void parallel_write(int graph_num, int ncycle, double simTime,
+                    double *data_loc) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  int height = 4;
   MPI_Request req;
   MPI_Status status;
+  int send_recv_count = graphics_mysize;
+  printf("Rank:%d\tSend_Recv_Id:%d\tDD:%p\tDL:%p\n", rank, graph_num,
+         data_double, data_loc);
   if (rank == 0) {
-    MPI_Isend(&height, 1, MPI_INT, 1, 1001, MPI_COMM_WORLD, &req);
+    /* for (int i = 0; i < graphics_mysize; i++) { */
+      
+    /* } */
+    MPI_Send(data_double, send_recv_count, MPI_DOUBLE, 1, graph_num,
+              MPI_COMM_WORLD);
   } else {
-    MPI_Recv(&height, 1, MPI_INT, 0, 1001, MPI_COMM_WORLD, &status);
-    printf("Rank:%d\tReceived:H:%d\n", rank, height);
+    MPI_Recv(data_loc, send_recv_count, MPI_DOUBLE, 0, graph_num,
+             MPI_COMM_WORLD, &status);
+    data_double = data_loc;
+    printf("Finished Receiving data graph_num:%d\n", graph_num);
+    write_to_file(graph_num, ncycle, simTime);
   }
+  /* MPI_Barrier(MPI_COMM_WORLD); */
   /* MPI_Request_free(&req); */
 }
 

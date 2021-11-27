@@ -250,16 +250,19 @@ int main(int argc, char *argv[]) {
      * time, */
     /* deltaT, TotalMass); */
     set_data((double *)H);
-    if (rank == 0) {
-      write_to_file(graph_num, n, time);
-    }
-    parallel_write(graph_num, n, time);
+    /* if (rank == 0) { */
+    /*   write_to_file(graph_num, n, time); */
+    /* } */
+    printf("%d\t%p\n", rank, (double *)H);
+    parallel_write(graph_num, n, time, (double *)H);
     /* MPI_Barrier(comm); */
     graph_num++;
   }
-
-  double totaltime = cpu_timer_stop(starttime);
-  printf(" Flow finished in %lf seconds\n", totaltime);
+  MPI_Barrier(comm);
+  if (rank == 0) {
+    double totaltime = cpu_timer_stop(starttime);
+    printf("Rank:%d\tFlow finished in %lf seconds\n", rank, totaltime);
+  }
 
   free(H);
   free(U);
