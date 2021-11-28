@@ -77,10 +77,13 @@ int main(int argc, char *argv[]) {
 
   initArrays(H, U, V);
 
-  float xwinmin = 0.0 - 2.0;
-  float xwinmax = (float)nx + 2.0;
-  float ywinmin = 0.0 - 12.0;
-  float ywinmax = (float)ny + 2.0;
+  float xwin_gap = 0.0;
+  float ybot_gap = 0;
+  float ytop_gap = 0;
+  float xwinmin = 0.0 - xwin_gap;
+  float xwinmax = (float)nx + xwin_gap;
+  float ywinmin = 0.0 - ybot_gap;
+  float ywinmax = (float)ny + ytop_gap;
   set_graphics_mysize(nx * ny);
   set_graphics_window(xwinmin, xwinmax, ywinmin, ywinmax);
   double **restrict dx = malloc2D(ny + 2, nx + 2);
@@ -103,7 +106,7 @@ int main(int argc, char *argv[]) {
 
   int graph_num = 0;
   /* write_to_file(graph_num, 0, 0.0); */
-  double origTM = calculateMass(H);
+  /* double origTM = calculateMass(H); */
 
   double deltaT = 1.0e30;
   double deltaX = 1.0;
@@ -253,7 +256,7 @@ int main(int argc, char *argv[]) {
     } // burst loop
     n += nburst;
     time += deltaT;
-    double TotalMass = calculateMass(H);
+    /* double TotalMass = calculateMass(H); */
     // print iteration info
     /* printf("Iteration:%5.5d, Time:%f, Timestep:%f Total mass:%f\n", n,
      * time, */

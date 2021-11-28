@@ -39,8 +39,8 @@ void set_graphics_cell_coordinates(double *x_in, double *dx_in, double *y_in,
 }
 
 void init_graphics_output() {
-  int width = (WINSIZE / (graphics_ymax - graphics_ymin)) *
-              (graphics_xmax - graphics_xmin);
+  /* int width = (WINSIZE / (graphics_ymax - graphics_ymin)) * */
+              /* (graphics_xmax - graphics_xmin); */
   xconversion = (double)WINSIZE / (graphics_xmax - graphics_xmin);
   yconversion = (double)WINSIZE / (graphics_ymax - graphics_ymin);
 
@@ -58,7 +58,7 @@ void parallel_write(int graph_num, int ncycle, double simTime,
   MPI_Status status;
   int send_recv_count = graphics_mysize;
   printf("Rank:%d\tSend_Recv_Id:%d\tDD:%p\tDL:%p\n", rank, graph_num,
-         data_double, data_loc);
+         (void *)data_double, (void *)data_loc);
   if (rank == 0) {
     /* for (int i = 0; i < graphics_mysize; i++) { */
       
@@ -73,7 +73,7 @@ void parallel_write(int graph_num, int ncycle, double simTime,
     write_to_file(graph_num, ncycle, simTime);
   }
   /* MPI_Barrier(MPI_COMM_WORLD); */
-  /* MPI_Request_free(&req); */
+  MPI_Request_free(&req);
 }
 
 void write_to_file(int graph_num, int ncycle, double simTime) {

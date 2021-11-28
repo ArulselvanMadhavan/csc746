@@ -43,3 +43,4 @@ add_custom_command(
 
 configure_file(${CMAKE_SOURCE_DIR}/generate_image.py generate_image.py)
 configure_file(${CMAKE_SOURCE_DIR}/generate_movie.sh generate_movie.sh)
+configure_file(${CMAKE_SOURCE_DIR}/generate_image.go generate_image.go)

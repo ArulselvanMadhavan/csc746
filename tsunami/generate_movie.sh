@@ -14,11 +14,13 @@ while getopts ys:f: opt
       esac
 done
 
-if [ $outlines -eq 1 ]; then
-   python generate_image.py y
-else
-   python generate_image.py
-fi
+# if [ $outlines -eq 1 ]; then
+#    python generate_image.py y
+# else
+#    python generate_image.py
+# fi
+
+go run generate_image.go
 
 cd ./graphics_output
 
