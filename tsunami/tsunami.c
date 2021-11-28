@@ -35,23 +35,6 @@ void initArrays(double **restrict H, double **restrict U, double **restrict V) {
   }
 }
 
-void calculateDeltaT(double **restrict H, double **restrict U,
-                     double **restrict V, double *deltaX, double *deltaY,
-                     double *deltaT) {
-
-  for (int j = 1; j < ny; j++) {
-    for (int i = 1; i < nx; i++) {
-      double wavespeed = sqrt(g * H[j][i]);
-      double xspeed = (fabs(U[j][i]) + wavespeed) / *deltaX;
-      double yspeed = (fabs(V[j][i]) + wavespeed) / *deltaY;
-      double my_deltaT = sigma / (xspeed + yspeed);
-      if (my_deltaT < *deltaT) {
-        *deltaT = my_deltaT;
-      }
-    }
-  }
-}
-
 double calculateMass(double **restrict H) {
   double result = 0.0;
   for (int j = 1; j <= ny; j++) {
@@ -125,7 +108,19 @@ int main(int argc, char *argv[]) {
   double deltaT = 1.0e30;
   double deltaX = 1.0;
   double deltaY = 1.0;
-  calculateDeltaT(H, U, V, &deltaX, &deltaY, &deltaT);
+
+  for (int j = 1; j < ny; j++) {
+    for (int i = 1; i < nx; i++) {
+      double wavespeed = sqrt(g * H[j][i]);
+      double xspeed = (fabs(U[j][i]) + wavespeed) / deltaX;
+      double yspeed = (fabs(V[j][i]) + wavespeed) / deltaY;
+      double my_deltaT = sigma / (xspeed + yspeed);
+      if (my_deltaT < deltaT) {
+        deltaT = my_deltaT;
+      }
+    }
+  }
+
   double time = 0.0;
   /* printf("Iteration:%5.5d, Time:%f, Timestep:%f Total mass:%f\n", 0, time,
    */
@@ -159,11 +154,22 @@ int main(int argc, char *argv[]) {
         }
 
         deltaT = 1.0e30;
-        calculateDeltaT(H, U, V, &deltaX, &deltaY, &deltaT);
+
+        for (int j = 1; j < ny; j++) {
+          for (int i = 1; i < nx; i++) {
+            double wavespeed = sqrt(g * H[j][i]);
+            double xspeed = (fabs(U[j][i]) + wavespeed) / deltaX;
+            double yspeed = (fabs(V[j][i]) + wavespeed) / deltaY;
+            double my_deltaT = sigma / (xspeed + yspeed);
+            if (my_deltaT < deltaT) {
+              deltaT = my_deltaT;
+            }
+          }
+        }
 
         // first pass
         // x direction
-#pragma omp for collapse(2)
+        /* #pragma omp for collapse(2) */
         for (int j = 0; j < ny; j++) {
           for (int i = 0; i <= nx; i++) {
             // density calculation
@@ -187,6 +193,7 @@ int main(int argc, char *argv[]) {
         }
 
         // y direction
+#pragma omp for collapse(2)
         for (int j = 0; j <= ny; j++) {
           for (int i = 0; i < nx; i++) {
             // density calculation
