@@ -8,5 +8,5 @@ void set_graphics_window(float graphics_xmin_in, float graphics_xmax_in,
                          float graphics_ymin_in, float graphics_ymax_in);
 void set_graphics_mysize(int graphics_mysize_in);
 void write_to_file(int graph_num, int ncycle, double simTime);
-void parallel_write(int graph_num, int ncycle, double simTime, double* data_loc);
+void parallel_write(int graph_num, int ncycle, double simTime);
 #endif

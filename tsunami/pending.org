@@ -9,4 +9,6 @@
 ** Tsunami report
    - [ ] O3 optimization
    - [ ] Clang to nvcc
+   - [ ] Serial write to parallel write(2)
+     - From 51 secs to 41 secs
    - 

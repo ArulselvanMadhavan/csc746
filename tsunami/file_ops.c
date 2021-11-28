@@ -40,7 +40,7 @@ void set_graphics_cell_coordinates(double *x_in, double *dx_in, double *y_in,
 
 void init_graphics_output() {
   /* int width = (WINSIZE / (graphics_ymax - graphics_ymin)) * */
-              /* (graphics_xmax - graphics_xmin); */
+  /* (graphics_xmax - graphics_xmin); */
   xconversion = (double)WINSIZE / (graphics_xmax - graphics_xmin);
   yconversion = (double)WINSIZE / (graphics_ymax - graphics_ymin);
 
@@ -50,37 +50,39 @@ void init_graphics_output() {
   }
 }
 
-void parallel_write(int graph_num, int ncycle, double simTime,
-                    double *data_loc) {
+void parallel_write(int graph_num, int ncycle, double simTime) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  MPI_Request req;
+  int nprocs;
+  MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+  int recv_ranks = nprocs - 1;
+  int recv_rank = (graph_num % recv_ranks) + 1;
   MPI_Status status;
+  /* MPI_Request req; */
   int send_recv_count = graphics_mysize;
-  printf("Rank:%d\tSend_Recv_Id:%d\tDD:%p\tDL:%p\n", rank, graph_num,
-         (void *)data_double, (void *)data_loc);
+
   if (rank == 0) {
-    /* for (int i = 0; i < graphics_mysize; i++) { */
-      
+    /* for(int i=0;i<graphics_mysize;i++){ */
+    /*   malloc2D(gdims[0], gdims[1]); */
     /* } */
-    MPI_Send(data_double, send_recv_count, MPI_DOUBLE, 1, graph_num,
-              MPI_COMM_WORLD);
+    printf("Sending %d to %d\n", graph_num, recv_rank);
+    MPI_Send(data_double, send_recv_count, MPI_DOUBLE, recv_rank, graph_num,
+             MPI_COMM_WORLD);
+    printf("Finished %d sending to %d\n", graph_num, recv_rank);
   } else {
-    MPI_Recv(data_loc, send_recv_count, MPI_DOUBLE, 0, graph_num,
-             MPI_COMM_WORLD, &status);
-    data_double = data_loc;
-    printf("Finished Receiving data graph_num:%d\n", graph_num);
-    write_to_file(graph_num, ncycle, simTime);
+    if (rank == recv_rank) {
+      printf("Waiting to receive:%d from Rank:%d\n", graph_num, rank);
+      MPI_Recv(data_double, send_recv_count, MPI_DOUBLE, 0, graph_num,
+               MPI_COMM_WORLD, &status);
+      write_to_file(graph_num, ncycle, simTime);
+    }
   }
-  /* MPI_Barrier(MPI_COMM_WORLD); */
-  MPI_Request_free(&req);
 }
 
 void write_to_file(int graph_num, int ncycle, double simTime) {
   int i;
   int color;
   char filename[50], filename2[50];
-
   sprintf(filename, "%s/graph%05d.data", graphics_directory, graph_num);
   sprintf(filename2, "%s/outline%05d.lin", graphics_directory, graph_num);
 

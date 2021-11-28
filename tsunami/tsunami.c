@@ -9,18 +9,19 @@
 #define SQ(x) ((x) * (x))
 #define SWAP_PTR(xnew, xold, xtmp) (xtmp = xnew, xnew = xold, xold = xtmp)
 
-const int ny = 200;
-const int nx = 500;
+const int ny = 700;
+const int nx = 700;
 const int nhalo = 1;
 const double g = 9.8;
 const double sigma = 0.95;
-const int ntimes = 2000;
+const int ntimes = 4000;
 const int nburst = 100;
 const int gdims[] = {ny + 2 * nhalo, nx + 2 * nhalo};
 
 double **malloc2D(int jmax, int imax);
 
 void initArrays(double **restrict H, double **restrict U, double **restrict V) {
+#pragma omp for
   for (int j = 0; j < gdims[0]; j++) {
     for (int i = 0; i < gdims[1]; i++) {
       H[j][i] = 2.0;
@@ -37,6 +38,7 @@ void initArrays(double **restrict H, double **restrict U, double **restrict V) {
 
 double calculateMass(double **restrict H) {
   double result = 0.0;
+  #pragma omp for
   for (int j = 1; j <= ny; j++) {
     for (int i = 1; i <= nx; i++) {
       result += H[j][i];
@@ -73,7 +75,7 @@ int main(int argc, char *argv[]) {
   double **restrict Uy = malloc2D(ny + 1, nx);
   double **restrict Vy = malloc2D(ny + 1, nx);
 
-  double **restrict temp;
+  /* double **restrict temp; */
 
   initArrays(H, U, V);
 
@@ -112,6 +114,7 @@ int main(int argc, char *argv[]) {
   double deltaX = 1.0;
   double deltaY = 1.0;
 
+#pragma omp for
   for (int j = 1; j < ny; j++) {
     for (int i = 1; i < nx; i++) {
       double wavespeed = sqrt(g * H[j][i]);
@@ -137,7 +140,8 @@ int main(int argc, char *argv[]) {
     /* printf("Outer:%d\n", n); */
     for (int ib = 0; ib < nburst; ib++) {
       if (rank == 0) {
-        /* Boundary conditions */
+/* Boundary conditions */
+#pragma omp for
         for (int j = 1; j <= ny; j++) {
           H[j][0] = H[j][1];
           U[j][0] = -U[j][1]; /* why neg? */
@@ -147,6 +151,7 @@ int main(int argc, char *argv[]) {
           V[j][nx + 1] = V[j][nx];
         }
 
+#pragma omp for
         for (int i = 0; i <= nx + 1; i++) {
           H[0][i] = H[1][i];
           U[0][i] = U[0][i];
@@ -157,7 +162,7 @@ int main(int argc, char *argv[]) {
         }
 
         deltaT = 1.0e30;
-
+#pragma omp for /* collapse */
         for (int j = 1; j < ny; j++) {
           for (int i = 1; i < nx; i++) {
             double wavespeed = sqrt(g * H[j][i]);
@@ -170,9 +175,9 @@ int main(int argc, char *argv[]) {
           }
         }
 
-        // first pass
-        // x direction
-        /* #pragma omp for collapse(2) */
+// first pass
+// x direction
+#pragma omp for
         for (int j = 0; j < ny; j++) {
           for (int i = 0; i <= nx; i++) {
             // density calculation
@@ -196,7 +201,7 @@ int main(int argc, char *argv[]) {
         }
 
         // y direction
-#pragma omp for collapse(2)
+#pragma omp for
         for (int j = 0; j <= ny; j++) {
           for (int i = 0; i < nx; i++) {
             // density calculation
@@ -219,7 +224,8 @@ int main(int argc, char *argv[]) {
           }
         }
 
-        // second pass
+// second pass
+#pragma omp for
         for (int j = 1; j <= ny; j++) {
           for (int i = 1; i <= nx; i++) {
             // density calculation
@@ -249,24 +255,32 @@ int main(int argc, char *argv[]) {
           }
         }
 
-        SWAP_PTR(H, Hnew, temp);
-        SWAP_PTR(U, Unew, temp);
-        SWAP_PTR(V, Vnew, temp);
+/* SWAP_PTR(H, Hnew, temp); */
+/* SWAP_PTR(U, Unew, temp); */
+/* SWAP_PTR(V, Vnew, temp); */
+#pragma omp for
+        for (int j = 1; j <= ny; j++) {
+          for (int i = 1; i <= nx; i++) {
+            H[j][i] = Hnew[j][i];
+            U[j][i] = Unew[j][i];
+            V[j][i] = Vnew[j][i];
+          }
+        }
       }
     } // burst loop
     n += nburst;
     time += deltaT;
-    /* double TotalMass = calculateMass(H); */
     // print iteration info
-    /* printf("Iteration:%5.5d, Time:%f, Timestep:%f Total mass:%f\n", n,
-     * time, */
-    /* deltaT, TotalMass); */
     set_data((double *)H);
+
     if (rank == 0) {
-      write_to_file(graph_num, n, time);
+      double totalMass = calculateMass(H);
+      printf("Iteration:%5.5d, Time:%f, Timestep:%f Mass:%f\n", n, time, deltaT,
+             totalMass);
+      /* write_to_file(graph_num, n, time); */
     }
     /* printf("%d\t%p\n", rank, (double *)H); */
-    /* parallel_write(graph_num, n, time, (double *)H); */
+    parallel_write(graph_num, n, time);
     /* MPI_Barrier(comm); */
     graph_num++;
   }
