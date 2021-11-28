@@ -53,7 +53,7 @@ func buildPixel(chunks [][]byte, points []int) (image.Rectangle, color.RGBA) {
 	// n_color := float64(p_color) / 255.0
 	// col := colorful.Color{n_color, n_color, n_color}
 	// colorful.FastLinearRgb(r float64, g float64, b float64)
-	col := colorful.Hsv(float64(p_color), 1.0, 0.5)
+	col := colorful.Hsl(float64(p_color), 1.0, 0.5)
 	r, g, b, a := col.RGBA()
 	rgba_col := color.RGBA{uint8(r), uint8(g), uint8(b), uint8(a)}
 	pixel := image.Rect(x1, y1, x2, y2)
