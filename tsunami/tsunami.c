@@ -1,6 +1,7 @@
 #include "file_ops.h"
 #include "math.h"
 #include "mpi.h"
+#include "omp.h"
 #include "stdio.h"
 #include "stdlib.h"
 #include "timer.h"
@@ -118,7 +119,7 @@ int main(int argc, char *argv[]) {
   init_graphics_output();
 
   int graph_num = 0;
-  write_to_file(graph_num, 0, 0.0);
+  /* write_to_file(graph_num, 0, 0.0); */
   double origTM = calculateMass(H);
 
   double deltaT = 1.0e30;
@@ -162,6 +163,7 @@ int main(int argc, char *argv[]) {
 
         // first pass
         // x direction
+#pragma omp for collapse(2)
         for (int j = 0; j < ny; j++) {
           for (int i = 0; i <= nx; i++) {
             // density calculation
@@ -250,11 +252,11 @@ int main(int argc, char *argv[]) {
      * time, */
     /* deltaT, TotalMass); */
     set_data((double *)H);
-    /* if (rank == 0) { */
-    /*   write_to_file(graph_num, n, time); */
-    /* } */
-    printf("%d\t%p\n", rank, (double *)H);
-    parallel_write(graph_num, n, time, (double *)H);
+    if (rank == 0) {
+      write_to_file(graph_num, n, time);
+    }
+    /* printf("%d\t%p\n", rank, (double *)H); */
+    /* parallel_write(graph_num, n, time, (double *)H); */
     /* MPI_Barrier(comm); */
     graph_num++;
   }

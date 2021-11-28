@@ -1,27 +1,27 @@
 [
 {
   "directory": "/home/arul/dev/csc746/tsunami/build",
-  "command": "/home/arul/.local/bin/clang  -I/opt/nvidia/hpc_sdk/Linux_x86_64/21.9/comm_libs/openmpi/openmpi-3.1.5/include -I/usr/include/hdf5/openmpi   -g -O3   -std=gnu99 -o CMakeFiles/tsunami.dir/tsunami.c.o   -c /home/arul/dev/csc746/tsunami/tsunami.c",
+  "command": "/home/arul/.local/bin/clang  -I/opt/nvidia/hpc_sdk/Linux_x86_64/21.9/comm_libs/openmpi/openmpi-3.1.5/include -I/usr/include/hdf5/openmpi   -g -O3 -pg   -fopenmp -Wall -pedantic -march=native -std=gnu99 -o CMakeFiles/tsunami.dir/tsunami.c.o   -c /home/arul/dev/csc746/tsunami/tsunami.c",
   "file": "/home/arul/dev/csc746/tsunami/tsunami.c"
 },
 {
   "directory": "/home/arul/dev/csc746/tsunami/build",
-  "command": "/home/arul/.local/bin/clang  -I/opt/nvidia/hpc_sdk/Linux_x86_64/21.9/comm_libs/openmpi/openmpi-3.1.5/include -I/usr/include/hdf5/openmpi   -g -O3   -std=gnu99 -o CMakeFiles/tsunami.dir/memory.c.o   -c /home/arul/dev/csc746/tsunami/memory.c",
+  "command": "/home/arul/.local/bin/clang  -I/opt/nvidia/hpc_sdk/Linux_x86_64/21.9/comm_libs/openmpi/openmpi-3.1.5/include -I/usr/include/hdf5/openmpi   -g -O3 -pg   -fopenmp -Wall -pedantic -march=native -std=gnu99 -o CMakeFiles/tsunami.dir/memory.c.o   -c /home/arul/dev/csc746/tsunami/memory.c",
   "file": "/home/arul/dev/csc746/tsunami/memory.c"
 },
 {
   "directory": "/home/arul/dev/csc746/tsunami/build",
-  "command": "/home/arul/.local/bin/clang  -I/opt/nvidia/hpc_sdk/Linux_x86_64/21.9/comm_libs/openmpi/openmpi-3.1.5/include -I/usr/include/hdf5/openmpi   -g -O3   -std=gnu99 -o CMakeFiles/tsunami.dir/timer.c.o   -c /home/arul/dev/csc746/tsunami/timer.c",
+  "command": "/home/arul/.local/bin/clang  -I/opt/nvidia/hpc_sdk/Linux_x86_64/21.9/comm_libs/openmpi/openmpi-3.1.5/include -I/usr/include/hdf5/openmpi   -g -O3 -pg   -fopenmp -Wall -pedantic -march=native -std=gnu99 -o CMakeFiles/tsunami.dir/timer.c.o   -c /home/arul/dev/csc746/tsunami/timer.c",
   "file": "/home/arul/dev/csc746/tsunami/timer.c"
 },
 {
   "directory": "/home/arul/dev/csc746/tsunami/build",
-  "command": "/home/arul/.local/bin/clang  -I/opt/nvidia/hpc_sdk/Linux_x86_64/21.9/comm_libs/openmpi/openmpi-3.1.5/include -I/usr/include/hdf5/openmpi   -g -O3   -std=gnu99 -o CMakeFiles/tsunami.dir/file_ops.c.o   -c /home/arul/dev/csc746/tsunami/file_ops.c",
+  "command": "/home/arul/.local/bin/clang  -I/opt/nvidia/hpc_sdk/Linux_x86_64/21.9/comm_libs/openmpi/openmpi-3.1.5/include -I/usr/include/hdf5/openmpi   -g -O3 -pg   -fopenmp -Wall -pedantic -march=native -std=gnu99 -o CMakeFiles/tsunami.dir/file_ops.c.o   -c /home/arul/dev/csc746/tsunami/file_ops.c",
   "file": "/home/arul/dev/csc746/tsunami/file_ops.c"
 },
 {
   "directory": "/home/arul/dev/csc746/tsunami/build",
-  "command": "/home/arul/.local/bin/clang  -I/opt/nvidia/hpc_sdk/Linux_x86_64/21.9/comm_libs/openmpi/openmpi-3.1.5/include -I/usr/include/hdf5/openmpi   -g -O3   -std=gnu99 -o CMakeFiles/tsunami.dir/hdf5_file_ops.c.o   -c /home/arul/dev/csc746/tsunami/hdf5_file_ops.c",
+  "command": "/home/arul/.local/bin/clang  -I/opt/nvidia/hpc_sdk/Linux_x86_64/21.9/comm_libs/openmpi/openmpi-3.1.5/include -I/usr/include/hdf5/openmpi   -g -O3 -pg   -fopenmp -Wall -pedantic -march=native -std=gnu99 -o CMakeFiles/tsunami.dir/hdf5_file_ops.c.o   -c /home/arul/dev/csc746/tsunami/hdf5_file_ops.c",
   "file": "/home/arul/dev/csc746/tsunami/hdf5_file_ops.c"
 }
 ]
