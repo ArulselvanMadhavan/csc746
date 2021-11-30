@@ -4,6 +4,10 @@
 *** Clang compiler
 *** Python
 *** OpenMP
-    #+BEGIN_SRC bash
-    export LD_LIBRARY_PATH="$HOME/.local/lib/:$LD_LIBRARY_PATH"
-    #+END_SRC
+**** Ubuntu
+     #+BEGIN_SRC bash
+     export LD_LIBRARY_PATH="$HOME/.local/lib/:$LD_LIBRARY_PATH"
+     #+END_SRC
+**** Mac
+     - export LDFLAGS="-L/usr/local/opt/llvm@13/lib $LDFLAGS"
+     - brew install mplayer

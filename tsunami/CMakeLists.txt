@@ -6,7 +6,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # set(CMAKE_VERBOSE_MAKEFILE ON)
 
 cmake_policy(SET CMP0060 NEW) ## use full path so it doesn't pick up hdf5 in /usr/lib
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O3 -pg")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O3")
 
 # Find Packages
 find_package(MPI REQUIRED)
@@ -19,7 +19,7 @@ if (NOT HDF5_IS_PARALLEL)
 endif (NOT HDF5_IS_PARALLEL)
 
 
-add_executable(tsunami tsunami.c memory.c timer.c file_ops.c hdf5_file_ops.c)
+add_executable(tsunami timer.c memory.c tsunami.c file_ops.c hdf5_file_ops.c)
 set(IncludeDirs "${MPI_C_INCLUDE_PATH};${HDF5_C_INCLUDE_DIRS}")
 set_target_properties(tsunami PROPERTIES INCLUDE_DIRECTORIES
 "${IncludeDirs}")

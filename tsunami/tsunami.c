@@ -14,7 +14,7 @@ const int nx = 700;
 const int nhalo = 1;
 const double g = 9.8;
 const double sigma = 0.95;
-const int ntimes = 4000;
+const int ntimes = 3000;
 const int nburst = 100;
 const int gdims[] = {ny + 2 * nhalo, nx + 2 * nhalo};
 

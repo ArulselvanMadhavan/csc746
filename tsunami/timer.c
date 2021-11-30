@@ -1,5 +1,4 @@
 // clang-format off
-#include <time.h>
 #include "timer.h"
 // clang-format on
 

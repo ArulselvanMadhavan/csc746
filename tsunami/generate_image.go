@@ -19,7 +19,6 @@ import (
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/inconsolata"
 	"golang.org/x/image/math/fixed"
-	"gonum.org/v1/hdf5"
 )
 
 const GRAPHICS_PATH = "/graphics_output/*.data"
@@ -142,7 +141,7 @@ func createImageList(matches []string) {
 	writer.Flush()
 }
 
-func main2() {
+func main() {
 	var wg sync.WaitGroup
 	path, _ := os.Getwd()
 	if strings.Contains(path, "build") {
@@ -163,27 +162,27 @@ func main2() {
 	wg.Wait()
 	// Create image list
 	createImageList(matches)
-	log.Println("All done")
+	// log.Println("All done")
 }
 
-func main() {
-	fname := "example0.hdf5"
-	f, err := hdf5.OpenFile(fname, hdf5.F_ACC_RDONLY)
-	if err != nil {
-		panic(err)
-	}
-	dset, err := f.OpenDataset("data array")
-	if err != nil {
-		panic(err)
-	}
-	dspace := dset.Space()
-	dims, _, _ := dspace.SimpleExtentDims()
-	totalDims := 1
-	for _, v := range dims {
-		totalDims = totalDims * int(v)
-	}
-	s2 := make([]float64, totalDims)
-	err = dset.Read(&s2)
-	log.Println("Size:", totalDims)
-	log.Println("All done", s2)
-}
+// func main() {
+// 	fname := "example0.hdf5"
+// 	f, err := hdf5.OpenFile(fname, hdf5.F_ACC_RDONLY)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	dset, err := f.OpenDataset("data array")
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	dspace := dset.Space()
+// 	dims, _, _ := dspace.SimpleExtentDims()
+// 	totalDims := 1
+// 	for _, v := range dims {
+// 		totalDims = totalDims * int(v)
+// 	}
+// 	s2 := make([]float64, totalDims)
+// 	err = dset.Read(&s2)
+// 	log.Println("Size:", totalDims)
+// 	log.Println("All done", s2)
+// }
