@@ -3,6 +3,7 @@
 #include "malloc2D.h"
 #include "mpi.h"
 #include "stdio.h"
+#include "stdlib.h"
 
 void init_array(int ny, int nx, int ng, double **array) {
   int rank;
@@ -23,8 +24,81 @@ void init_array(int ny, int nx, int ng, double **array) {
   }
 }
 
-/* SPMD style */
+const int primaryRank = 0;
+const int primaryColor = 0;
+
+void assign_hdf5_ranks(int rank, int nprocs, MPI_Comm comm,
+                       MPI_Comm *mpi_hdf5_comm) {
+  int nfiles = 1;
+  /* int ranks_per_file = nprocs - 1; */
+  int color = primaryColor;
+  if (rank != primaryRank) {
+    color = 1;
+  }
+  /* color = rank % 2; */
+  MPI_Comm_split(comm, color, rank, mpi_hdf5_comm);
+}
+
 int main(int argc, char *argv[]) {
+  MPI_Init(&argc, &argv);
+  int rank, nprocs;
+  MPI_Comm comm = MPI_COMM_WORLD;
+  MPI_Comm_rank(comm, &rank);
+  MPI_Comm_size(comm, &nprocs);
+
+  MPI_Comm mpi_hdf5_comm = MPI_COMM_NULL;
+  assign_hdf5_ranks(rank, nprocs, comm, &mpi_hdf5_comm);
+
+  int hdf5_nprocs;
+  MPI_Comm_size(mpi_hdf5_comm, &hdf5_nprocs);
+  printf("Rank:%d\tHDF5 size:%d\n", rank, hdf5_nprocs);
+  int ntimes = 4;
+  int ng = 0;
+  int ndims = 2;
+  int ny_global = 4;
+  int nx_global = 10;
+  int ny = 1;
+  int nx = 10;
+  int ny_offset = rank;
+  int nx_offset = 0;
+  hid_t memspace = H5S_NULL, filespace = H5S_NULL;
+  hdf5_file_init(ng, ndims, ny_global, nx_global, ny, nx, ny_offset, nx_offset,
+                 mpi_hdf5_comm, &memspace, &filespace);
+  char filename[30];
+  double **data = (double **)malloc2D(ny_global, nx_global);
+  MPI_Status stat;
+  int rows_per_rank = ny_global / nprocs;
+  for (int gnum = 0; gnum < ntimes; gnum++) {
+    sprintf(filename, "example%d.hdf5", gnum);
+    if (rank == 0) {
+      for (int j = 0; j < ny_global; j++) {
+        for (int i = 0; i < nx_global; i++) {
+          data[j][i] = (gnum * 100) + (j * 10) + i;
+        }
+      }
+
+      // Generate rows_per_rank
+      int recv_rank = 0;
+      for (int j = 1; j < ny_global; j++) {
+        recv_rank = j;
+        MPI_Send((double *)(data[j]), (rows_per_rank * nx_global), MPI_DOUBLE,
+                 recv_rank, gnum, comm);
+      }
+    } else {
+      double **recv_data = (double **)malloc2D(rows_per_rank, nx_global);
+      MPI_Recv((double *)(recv_data[rows_per_rank - 1]),
+               (rows_per_rank * nx_global), MPI_DOUBLE, 0, gnum, comm, &stat);
+      write_hdf5_file(filename, recv_data, memspace, filespace, mpi_hdf5_comm);
+    }
+    MPI_Barrier(comm);
+  }
+  /* MPI_status */
+  hdf5_file_finalize(&memspace, &filespace);
+  MPI_Finalize();
+}
+
+/* SPMD style */
+int main2(int argc, char *argv[]) {
   MPI_Init(&argc, &argv);
   int rank, nprocs;
   MPI_Comm comm = MPI_COMM_WORLD;

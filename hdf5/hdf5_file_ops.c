@@ -9,12 +9,13 @@
 #include "H5Tpublic.h"
 #include "H5public.h"
 #include "mpi.h"
+#include "stdlib.h"
 
 hid_t create_filespace(int ndims, int ny_global, int nx_global, int ny, int nx,
                        int ny_off, int nx_off, MPI_Comm mpi_hdf5_comm) {
   hsize_t dims[] = {ny_global, nx_global};
-  hid_t filespace = H5Screate_simple(ndims, dims, NULL);
-
+  hid_t filespace = H5Screate_simple(ndims, dims, NULL);  
+  printf("Filespace: Start:%d,%d\tGlobal:%d,%d\n", ny_off, nx_off, ny_global, nx_global);
   hsize_t start[] = {ny_off, nx_off};
   hsize_t stride[] = {1, 1};
   hsize_t count[] = {ny, nx};
@@ -29,6 +30,7 @@ hid_t create_memspace(int ndims, int ny, int nx, int ng) {
   hsize_t start[] = {ng, ng};
   hsize_t stride[] = {1, 1};
   hsize_t count[] = {ny, nx};
+  printf("Memspace: Start:%d,%d\tGlobal:%d,%d\n", ng, ng, ny, nx);
   H5Sselect_hyperslab(ms, H5S_SELECT_SET, start, stride, count, NULL);
   return ms;
 }
