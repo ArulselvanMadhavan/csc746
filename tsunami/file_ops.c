@@ -10,7 +10,7 @@
 double *data_double = NULL;
 static double xconversion = 0.0;
 static double yconversion = 0.0;
-static int Ncolors = 256;
+const static int Ncolors = 256;
 static int iteration = 0;
 static int graphics_mysize = 0;
 static float graphics_xmin = 0.0, graphics_xmax = 0.0, graphics_ymin = 0.0,
@@ -47,8 +47,8 @@ void init_io(int rank, int nprocs) {
     hdf5_file_init(ng, ndims, ny_global, nx_global, ny, nx, ny_offset,
                    nx_offset, MPI_COMM_WORLD, &memspace, &filespace);
   } else {
-    hdf5_file_init(ng, ndims, ny_global, nx_global, 0, 0, 0,
-                   0, MPI_COMM_WORLD, &memspace, &filespace);
+    hdf5_file_init(ng, ndims, ny_global, nx_global, 0, 0, 0, 0, MPI_COMM_WORLD,
+                   &memspace, &filespace);
   }
 }
 
@@ -88,6 +88,22 @@ void init_graphics_output() {
 
 /* double** restrict data_recv = (double **)malloc2D(); */
 MPI_Status status;
+/* static int Ncolors = 256; */
+
+const double step = Ncolors / (scaleMax - scaleMin);
+
+int calc_color(double data) {
+  int color = 0;
+  color = (int)(data - scaleMin) * step;
+  color = Ncolors - color;
+  if (color < 0) {
+    color = 0;
+  }
+  if (color >= Ncolors)
+    color = Ncolors - 1;
+  return color;
+}
+
 void divide_and_write(int rank, const int gdims[2], int graph_num, int ncycle,
                       double simTime) {
 
@@ -107,14 +123,32 @@ void divide_and_write(int rank, const int gdims[2], int graph_num, int ncycle,
     printf("Received Rank:%d\n", rank);
   }
   MPI_Barrier(MPI_COMM_WORLD);
-  // All processes except rank 0, start writing.
-  /* if (rank > 0) { */
-    sprintf(filename, "graph%d.hdf5", graph_num);
+  sprintf(filename, "graph%d.hdf5", graph_num);
+  int xloc, xwid, yloc, ywid;
+
+  if (rank > 0) {
+    int start = ((rank - 1) * data_per_proc);
+    int end = start + data_per_proc;
+    printf("Rank:%d\tstart:%d\tend:%d\n", rank, start, end);
     for (int row = 0; row < data_per_proc; row++) {
-      file_buf[row][0] = data_recv[row];
+      int i = start + row;
+      xloc = (int)((x_double[i] - graphics_xmin) * xconversion);
+      xwid = (int)((x_double[i] + dx_double[i] - graphics_xmin) * xconversion -
+                   xloc);
+      yloc =
+          (int)((graphics_ymax - (y_double[i] + dy_double[i])) * yconversion);
+      ywid = (int)((graphics_ymax - y_double[i]) * yconversion);
+      ywid -= yloc;
+
+      file_buf[row][0] = xloc;
+      file_buf[row][1] = yloc;
+      file_buf[row][2] = xwid;
+      file_buf[row][3] = ywid;
+      file_buf[row][4] = calc_color(data_recv[row]);
     }
-    printf("Rank:%d\tWriting data\n", rank);
-    write_hdf5_file(filename, file_buf, memspace, filespace, MPI_COMM_WORLD);
+  }
+  printf("Rank:%d\tWriting data\n", rank);
+  write_hdf5_file(filename, file_buf, memspace, filespace, MPI_COMM_WORLD);
   /* } */
   MPI_Barrier(MPI_COMM_WORLD);
 }
@@ -131,7 +165,7 @@ void write_to_file(int graph_num, int ncycle, double simTime) {
   if (fp && fp2) {
     fprintf(fp, "%d,%lf\n", ncycle, simTime);
 
-    double step = Ncolors / (scaleMax - scaleMin);
+    /* double step = Ncolors / (scaleMax - scaleMin); */
     int xloc, xwid, yloc, ywid;
     int xloc1, xloc2, yloc1, yloc2;
     /* printf("DISPLAY " */
@@ -142,14 +176,7 @@ void write_to_file(int graph_num, int ncycle, double simTime) {
     /*        graphics_ymax, scaleMax, scaleMin); */
 
     for (i = 0; i < graphics_mysize; i++) {
-      color = (int)(data_double[i] - scaleMin) * step;
-      color = Ncolors - color;
-      if (color < 0) {
-        color = 0;
-      }
-      if (color >= Ncolors)
-        color = Ncolors - 1;
-
+      color = calc_color(data_double[i]);
       xloc = (int)((x_double[i] - graphics_xmin) * xconversion);
       xwid = (int)((x_double[i] + dx_double[i] - graphics_xmin) * xconversion -
                    xloc);

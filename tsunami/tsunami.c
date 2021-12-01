@@ -289,9 +289,7 @@ int main(int argc, char *argv[]) {
     double totaltime = cpu_timer_stop(starttime);
     printf("Rank:%d\tFlow finished in %lf seconds\n", rank, totaltime);
   }
-  /* if (rank > 0) { */
-    finalize_io();
-  /* } */
+  finalize_io();
 
   free(H);
   free(U);
