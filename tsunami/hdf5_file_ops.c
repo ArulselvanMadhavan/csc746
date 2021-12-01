@@ -54,7 +54,6 @@ hid_t create_hdf5_file(const char *filename, MPI_Comm mpi_hdf5_comm) {
   hid_t fa_plist = H5P_DEFAULT;
   fa_plist = H5Pcreate(H5P_FILE_ACCESS);
   H5Pset_coll_metadata_write(fa_plist, true);
-  printf("H5PCreate \n");
   MPI_Info mpi_info = MPI_INFO_NULL;
   MPI_Info_create(&mpi_info);
   MPI_Info_set(mpi_info, "striping_factor", "8");
@@ -81,7 +80,6 @@ hid_t create_dataset(hid_t file_id, hid_t filespace) {
 void write_hdf5_file(const char *filename, double **data, hid_t memspace,
                      hid_t filespace, MPI_Comm mpi_hdf5_comm) {
   hid_t fid = create_hdf5_file(filename, mpi_hdf5_comm);
-  printf("File created\n");
   hid_t xfer_plist = H5Pcreate(H5P_DATASET_XFER);
   H5Pset_dxpl_mpio(xfer_plist, H5FD_MPIO_COLLECTIVE);
   hid_t ds = create_dataset(fid, filespace);
