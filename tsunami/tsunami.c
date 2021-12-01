@@ -9,12 +9,12 @@
 #define SQ(x) ((x) * (x))
 #define SWAP_PTR(xnew, xold, xtmp) (xtmp = xnew, xnew = xold, xold = xtmp)
 
-const int ny = 700;
-const int nx = 700;
+const int ny = 200;
+const int nx = 500;
 const int nhalo = 1;
 const double g = 9.8;
 const double sigma = 0.95;
-const int ntimes = 100;
+const int ntimes = 2000;
 const int nburst = 100;
 const int gdims[] = {ny + 2 * nhalo, nx + 2 * nhalo};
 
@@ -278,10 +278,10 @@ int main(int argc, char *argv[]) {
       double totalMass = calculateMass(H);
       printf("Iteration:%5.5d, Time:%f, Timestep:%f Mass:%f\n", n, time, deltaT,
              totalMass);
-      /* write_to_file(graph_num, n, time); */
+      write_to_file(graph_num, n, time);
     }
     /* printf("%d\t%p\n", rank, (double *)H); */
-    divide_and_write(rank, gdims, graph_num, n, time);
+    /* divide_and_write(rank, gdims, graph_num, n, time); */
     /* parallel_write(graph_num, n, time); */
     graph_num++;
   }

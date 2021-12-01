@@ -8,6 +8,11 @@
      #+BEGIN_SRC bash
      export LD_LIBRARY_PATH="$HOME/.local/lib/:$LD_LIBRARY_PATH"
      #+END_SRC
+     - To install hdf5 for go
+     #+BEGIN_SRC bash
+     export CGO_CFLAGS="-I/usr/lib/x86_64-linux-gnu/hdf5/openmpi/include/ -I/usr/lib/x86_64-linux-gnu/openmpi/include/"
+     export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/hdf5/openmpi/
+     #+END_SRC
 **** Mac
      - export LDFLAGS="-L/usr/local/opt/llvm@13/lib $LDFLAGS"
      - brew install mplayer

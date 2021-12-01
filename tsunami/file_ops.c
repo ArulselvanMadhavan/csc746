@@ -108,12 +108,12 @@ void divide_and_write(int rank, const int gdims[2], int graph_num, int ncycle,
                       double simTime) {
 
   MPI_Request req;
-  char filename[30];
+  char filename[100];
   if (rank == 0) {
     for (int i = 0; i < io_procs; i++) {
-      int j_size = gdims[0];
+      int j_size = 0;
       double *data_start = (data_double + j_size) + (i * data_per_proc);
-      printf("Sending Iteration:%d\tStart:%p\n", graph_num, (void *)data_start);
+      /* printf("Sending Iteration:%d\tData_double:%p\tStart:%p\tDiff:%ld\n", graph_num, (void *)data_double,(void *)data_start, data_start - data_double); */
       MPI_Isend(data_start, data_per_proc, MPI_DOUBLE, i + 1, graph_num,
                 MPI_COMM_WORLD, &req);
     }
@@ -123,13 +123,11 @@ void divide_and_write(int rank, const int gdims[2], int graph_num, int ncycle,
     printf("Received Rank:%d\n", rank);
   }
   MPI_Barrier(MPI_COMM_WORLD);
-  sprintf(filename, "graph%d.hdf5", graph_num);
+  sprintf(filename, "./graphics_output/graph%05d.hdf5", graph_num);
   int xloc, xwid, yloc, ywid;
 
   if (rank > 0) {
     int start = ((rank - 1) * data_per_proc);
-    int end = start + data_per_proc;
-    printf("Rank:%d\tstart:%d\tend:%d\n", rank, start, end);
     for (int row = 0; row < data_per_proc; row++) {
       int i = start + row;
       xloc = (int)((x_double[i] - graphics_xmin) * xconversion);
@@ -147,10 +145,7 @@ void divide_and_write(int rank, const int gdims[2], int graph_num, int ncycle,
       file_buf[row][4] = calc_color(data_recv[row]);
     }
   }
-  printf("Rank:%d\tWriting data\n", rank);
   write_hdf5_file(filename, file_buf, memspace, filespace, MPI_COMM_WORLD);
-  /* } */
-  MPI_Barrier(MPI_COMM_WORLD);
 }
 
 void write_to_file(int graph_num, int ncycle, double simTime) {

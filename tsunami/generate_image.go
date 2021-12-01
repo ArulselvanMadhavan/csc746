@@ -19,9 +19,11 @@ import (
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/inconsolata"
 	"golang.org/x/image/math/fixed"
+	"gonum.org/v1/hdf5"
 )
 
-const GRAPHICS_PATH = "/graphics_output/*.data"
+const GRAPHICS_DATA_PATH = "/graphics_output/*.data"
+const GRAPHICS_HDF5_PATH = "/graphics_output/*.hdf5"
 
 const WIDTH = 800
 const HEIGHT = 800
@@ -41,10 +43,7 @@ func addLabel(img *image.RGBA, x, y int, label string) {
 	d.DrawString(label)
 }
 
-func buildPixel(chunks [][]byte, points []int) (image.Rectangle, color.RGBA) {
-	for i, c := range chunks {
-		points[i], _ = strconv.Atoi(string(c))
-	}
+func buildRectPixel(points []int) (image.Rectangle, color.RGBA) {
 	x1 := points[0]
 	x2 := points[0] + points[2]
 	y1 := points[1]
@@ -60,6 +59,13 @@ func buildPixel(chunks [][]byte, points []int) (image.Rectangle, color.RGBA) {
 	return pixel, rgba_col
 }
 
+func buildPixel(chunks [][]byte, points []int) (image.Rectangle, color.RGBA) {
+	for i, c := range chunks {
+		points[i], _ = strconv.Atoi(string(c))
+	}
+	return buildRectPixel(points)
+}
+
 func buildLabel(chunks [][]byte) (int, float64) {
 	iteration, _ := strconv.Atoi(string(chunks[0]))
 	time, err := strconv.ParseFloat(string(chunks[1]), 64)
@@ -67,6 +73,64 @@ func buildLabel(chunks [][]byte) (int, float64) {
 		log.Fatalf("Float conversion failed. %s", err)
 	}
 	return iteration, time
+}
+
+func saveImage(fpath string, fname string, img *image.RGBA) {
+	fdir := filepath.Dir(fpath)
+	iFile, err := os.Create(fdir + "/" + fname + ".png")
+	if err != nil {
+		log.Println("Unable to create file", err)
+	}
+	png.Encode(iFile, img)
+}
+
+func processHdf5File(wg *sync.WaitGroup, fpath string) {
+	defer wg.Done()
+	fname := getFileName(fpath)
+	log.Println("Opening", fpath, fname)
+	f, err := hdf5.OpenFile(fpath, hdf5.F_ACC_RDONLY)
+	if err != nil {
+		panic(err)
+	}
+	dset, err := f.OpenDataset("data array")
+	if err != nil {
+		panic(err)
+	}
+	dspace := dset.Space()
+	dims, _, _ := dspace.SimpleExtentDims()
+	if len(dims) != 2 {
+		log.Fatalf("Only 2D is supported. Received data array of %d dims\n", len(dims))
+	}
+	totalDims := 1
+	for _, v := range dims {
+		totalDims = totalDims * int(v)
+	}
+	data := make([]float64, totalDims)
+	err = dset.Read(&data)
+	if err != nil {
+		log.Fatalf("Error in reading data\n")
+	}
+
+	// Create image
+	upLeft := image.Point{0, 0}
+	lowRight := image.Point{WIDTH, HEIGHT}
+
+	img := image.NewRGBA(image.Rectangle{upLeft, lowRight})
+
+	// draw pixels
+	rowSize := int(dims[0])
+	colSize := int(dims[1])
+	points := make([]int, colSize)
+	for i := 0; i < int(rowSize); i++ {
+		start := i * colSize
+		for j := 0; j < colSize; j++ {
+			points[j] = int(data[start+j])
+		}
+		pixel, rgba_col := buildRectPixel(points)
+		draw.Draw(img, pixel, &image.Uniform{rgba_col}, image.ZP, draw.Src)
+	}
+	// draw Labels
+	saveImage(fpath, fname, img)
 }
 
 func processFile(wg *sync.WaitGroup, fpath string) {
@@ -112,12 +176,7 @@ func processFile(wg *sync.WaitGroup, fpath string) {
 	addLabel(img, 0, 13, "Iteration: "+strconv.Itoa(iteration))
 	addLabel(img, 0, 26, "time: "+fmt.Sprint(simTime))
 
-	fdir := filepath.Dir(fpath)
-	iFile, err := os.Create(fdir + "/" + fname + ".png")
-	if err != nil {
-		log.Println("Unable to create file", err)
-	}
-	png.Encode(iFile, img)
+	saveImage(fpath, fname, img)
 }
 
 func getFileName(fpath string) string {
@@ -141,20 +200,35 @@ func createImageList(matches []string) {
 	writer.Flush()
 }
 
-func main() {
-	var wg sync.WaitGroup
+func getMatches(searchStr string) []string {
 	path, _ := os.Getwd()
 	if strings.Contains(path, "build") {
-		path += GRAPHICS_PATH
+		path += searchStr
 	} else {
-		path += "/build" + GRAPHICS_PATH
+		path += "/build" + searchStr
 	}
-	log.Println("Path:", path)
 	matches, err := filepath.Glob(path)
 	if err != nil {
 		log.Fatalf("error reading .data files. %v", err)
 	}
+	return matches
+}
 
+func main() {
+	var wg sync.WaitGroup
+	matches := getMatches(GRAPHICS_HDF5_PATH)
+	for _, fi := range matches {
+		wg.Add(1)
+		processHdf5File(&wg, fi)
+	}
+	wg.Wait()
+	createImageList(matches)
+	log.Println("All done")
+}
+
+func main2() {
+	var wg sync.WaitGroup
+	matches := getMatches(GRAPHICS_DATA_PATH)
 	for _, fi := range matches {
 		wg.Add(1)
 		go processFile(&wg, fi)
