@@ -14,7 +14,7 @@ const int nx = 700;
 const int nhalo = 1;
 const double g = 9.8;
 const double sigma = 0.95;
-const int ntimes = 3000;
+const int ntimes = 100;
 const int nburst = 100;
 const int gdims[] = {ny + 2 * nhalo, nx + 2 * nhalo};
 
@@ -38,7 +38,7 @@ void initArrays(double **restrict H, double **restrict U, double **restrict V) {
 
 double calculateMass(double **restrict H) {
   double result = 0.0;
-  #pragma omp for
+#pragma omp for
   for (int j = 1; j <= ny; j++) {
     for (int i = 1; i <= nx; i++) {
       result += H[j][i];
@@ -104,6 +104,7 @@ int main(int argc, char *argv[]) {
   set_graphics_cell_coordinates((double *)x, (double *)dx, (double *)y,
                                 (double *)dy);
   set_data((double *)H);
+  init_io(rank, nprocs);
   init_graphics_output();
 
   int graph_num = 0;
@@ -280,15 +281,17 @@ int main(int argc, char *argv[]) {
       /* write_to_file(graph_num, n, time); */
     }
     /* printf("%d\t%p\n", rank, (double *)H); */
-    parallel_write(graph_num, n, time);
-    /* MPI_Barrier(comm); */
+    divide_and_write(rank, gdims, graph_num, n, time);
+    /* parallel_write(graph_num, n, time); */
     graph_num++;
   }
-  MPI_Barrier(comm);
   if (rank == 0) {
     double totaltime = cpu_timer_stop(starttime);
     printf("Rank:%d\tFlow finished in %lf seconds\n", rank, totaltime);
   }
+  /* if (rank > 0) { */
+    finalize_io();
+  /* } */
 
   free(H);
   free(U);

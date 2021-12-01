@@ -1,7 +1,10 @@
 #include "file_ops.h"
+#include "hdf5_file_ops.h"
+#include "memory.h"
 #include "mpi.h"
 #include "stddef.h"
 #include "stdio.h"
+#include "stdlib.h"
 #include <sys/stat.h>
 
 double *data_double = NULL;
@@ -17,6 +20,39 @@ static double *x_double = NULL, *y_double = NULL, *dx_double = NULL,
               *dy_double = NULL;
 const double scaleMax = 25.0, scaleMin = 0.0;
 static const int WINSIZE = 800;
+
+static int io_procs = 0;
+static int data_per_proc = 0;
+static double *data_recv;
+static hid_t memspace = H5S_NULL, filespace = H5S_NULL;
+static double **restrict file_buf = NULL;
+
+double **malloc2D(int jmax, int imax);
+
+void init_io(int rank, int nprocs) {
+  io_procs = nprocs - 1;
+  data_per_proc = graphics_mysize / io_procs;
+  data_recv = (double *)malloc(sizeof(double) * data_per_proc);
+  file_buf = malloc2D(data_per_proc, 5);
+  int ng = 0;
+  int ndims = 2;
+  int ny_global = graphics_mysize;
+  int nx_global = 5;
+  int ny = data_per_proc;
+  int nx = 5;
+
+  if (rank > 0) {
+    int ny_offset = (rank - 1) * data_per_proc;
+    int nx_offset = 0;
+    hdf5_file_init(ng, ndims, ny_global, nx_global, ny, nx, ny_offset,
+                   nx_offset, MPI_COMM_WORLD, &memspace, &filespace);
+  } else {
+    hdf5_file_init(ng, ndims, ny_global, nx_global, 0, 0, 0,
+                   0, MPI_COMM_WORLD, &memspace, &filespace);
+  }
+}
+
+void finalize_io() { hdf5_file_finalize(&memspace, &filespace); }
 
 void set_data(double *data_in) { data_double = data_in; }
 void set_graphics_mysize(int graphics_mysize_in) {
@@ -50,33 +86,37 @@ void init_graphics_output() {
   }
 }
 
-void parallel_write(int graph_num, int ncycle, double simTime) {
-  int rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  int nprocs;
-  MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-  int recv_ranks = nprocs - 1;
-  int recv_rank = (graph_num % recv_ranks) + 1;
-  MPI_Status status;
-  /* MPI_Request req; */
-  int send_recv_count = graphics_mysize;
+/* double** restrict data_recv = (double **)malloc2D(); */
+MPI_Status status;
+void divide_and_write(int rank, const int gdims[2], int graph_num, int ncycle,
+                      double simTime) {
 
+  MPI_Request req;
+  char filename[30];
   if (rank == 0) {
-    /* for(int i=0;i<graphics_mysize;i++){ */
-    /*   malloc2D(gdims[0], gdims[1]); */
-    /* } */
-    printf("Sending %d to %d\n", graph_num, recv_rank);
-    MPI_Send(data_double, send_recv_count, MPI_DOUBLE, recv_rank, graph_num,
-             MPI_COMM_WORLD);
-    printf("Finished %d sending to %d\n", graph_num, recv_rank);
-  } else {
-    if (rank == recv_rank) {
-      printf("Waiting to receive:%d from Rank:%d\n", graph_num, rank);
-      MPI_Recv(data_double, send_recv_count, MPI_DOUBLE, 0, graph_num,
-               MPI_COMM_WORLD, &status);
-      write_to_file(graph_num, ncycle, simTime);
+    for (int i = 0; i < io_procs; i++) {
+      int j_size = gdims[0];
+      double *data_start = (data_double + j_size) + (i * data_per_proc);
+      printf("Sending Iteration:%d\tStart:%p\n", graph_num, (void *)data_start);
+      MPI_Isend(data_start, data_per_proc, MPI_DOUBLE, i + 1, graph_num,
+                MPI_COMM_WORLD, &req);
     }
+  } else {
+    MPI_Recv(data_recv, data_per_proc, MPI_DOUBLE, 0, graph_num, MPI_COMM_WORLD,
+             &status);
+    printf("Received Rank:%d\n", rank);
   }
+  MPI_Barrier(MPI_COMM_WORLD);
+  // All processes except rank 0, start writing.
+  /* if (rank > 0) { */
+    sprintf(filename, "graph%d.hdf5", graph_num);
+    for (int row = 0; row < data_per_proc; row++) {
+      file_buf[row][0] = data_recv[row];
+    }
+    printf("Rank:%d\tWriting data\n", rank);
+    write_hdf5_file(filename, file_buf, memspace, filespace, MPI_COMM_WORLD);
+  /* } */
+  MPI_Barrier(MPI_COMM_WORLD);
 }
 
 void write_to_file(int graph_num, int ncycle, double simTime) {
