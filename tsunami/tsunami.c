@@ -1,25 +1,114 @@
 #include "file_ops.h"
 #include "math.h"
 #include "mpi.h"
+#include "omp-test.h"
 #include "omp.h"
 #include "stdio.h"
 #include "stdlib.h"
 #include "timer.h"
-#include "omp-test.h"
 
 #define SQ(x) ((x) * (x))
 #define SWAP_PTR(xnew, xold, xtmp) (xtmp = xnew, xnew = xold, xold = xtmp)
-
 const int ny = 200;
 const int nx = 500;
+const int plusYDims[] = {ny + 1, nx};
+const int plusXDims[] = {ny, nx + 1};
 const int nhalo = 1;
+const int gdims[] = {ny + 2 * nhalo, nx + 2 * nhalo};
 const double g = 9.8;
 const double sigma = 0.95;
-const int ntimes = 10;
+const int ntimes = 0;
 const int nburst = 100;
-const int gdims[] = {ny + 2 * nhalo, nx + 2 * nhalo};
 
 double **malloc2D(int jmax, int imax);
+
+double calculateMass(double **restrict H) {
+  double result = 0.0;
+#pragma omp for
+  for (int j = 1; j <= ny; j++) {
+    for (int i = 1; i <= nx; i++) {
+      result += H[j][i];
+    }
+  }
+  return result;
+}
+
+int main3(int argc, char *argv[]) {
+  test();
+  return 0;
+}
+
+int main(int arc, char *argv[]) {
+  const int dims[2] = {gdims[0], gdims[1]};
+  double *restrict H = malloc(sizeof(double) * gdims[0] * gdims[1]);
+  double *restrict U = malloc(sizeof(double) * gdims[0] * gdims[1]);
+  double *restrict V = malloc(sizeof(double) * gdims[0] * gdims[1]);
+
+  int N = gdims[0] * gdims[1];
+  const double prefix = ((10.0 - 2.0) / (double)((nx + 1) / 2));
+  double deltaT = 1.0e30;
+  const double deltaX = 1.0, deltaY = 1.0;
+
+  struct timespec starttime;
+  cpu_timer_start(&starttime);
+  // clang-format off
+#pragma omp target data map(from:dims) map(alloc: H[:N], U[:N], V[:N]) map(to: H[:N], deltaT)
+  // clang-format on
+  {
+    // clang-format off
+#pragma omp target teams distribute parallel for collapse(2) map(always, to:dims[:2])
+    // clang-format on
+    for (int j = 0; j < dims[0]; j++) {
+      int row = j * dims[1];
+      for (int i = 0; i < dims[1]; i++) {
+        int pos = row + i;
+        H[pos] = 2.0;
+        U[pos] = 0.0;
+        V[pos] = 0.0;
+      }
+    }
+
+    // clang-format off
+#pragma omp target teams distribute parallel for collapse(2) map(dims[:2])
+    // clang-format on
+    for (int j = 0; j < dims[0]; j++) {
+      int row = j * dims[1];
+      for (int i = 0; i < dims[1] / 2; i++) {
+        int pos = row + i;
+        H[pos] = 10.0 - prefix * (double)(i);
+      }
+    }
+    // clang-format off
+#pragma omp target teams distribute parallel for collapse(2) map(always, from:H[:N], deltaT)
+    // clang-format on
+    for (int j = 1; j < ny; j++) {
+      int row = j * nx;
+      for (int i = 1; i < nx; i++) {
+        int pos = row + i;
+        double wavespeed = sqrt(g * H[pos]);
+        double xspeed = (fabs(U[pos]) + wavespeed) / deltaX;
+        double yspeed = (fabs(V[pos]) + wavespeed) / deltaY;
+        double my_deltaT = sigma / (xspeed + yspeed);
+        if (my_deltaT < deltaT)
+          deltaT = my_deltaT;
+      }
+    }
+    printf("%d\t%d\tH:%f\tdt:%f\tny:%d\n", dims[0], dims[1], H[0], deltaT, ny);
+  }
+
+  printf("Finished Target\n");
+  // calculate mass
+  double origTM = 0;
+  for (int j = 1; j <= ny; j++) {
+    int row = j * dims[1];
+    for (int i = 1; i <= nx; i++) {
+      int pos = row + i;
+      origTM += H[pos];
+    }
+  }
+  double totalTime = cpu_timer_stop(starttime);
+  printf("TotalTime:%f\tMass:%f\tdt:%f\n", totalTime, origTM, deltaT);
+}
 
 void initArrays(double **restrict H, double **restrict U, double **restrict V) {
 #pragma omp for
@@ -36,19 +125,6 @@ void initArrays(double **restrict H, double **restrict U, double **restrict V) {
     }
   }
 }
-
-double calculateMass(double **restrict H) {
-  double result = 0.0;
-#pragma omp for
-  for (int j = 1; j <= ny; j++) {
-    for (int i = 1; i <= nx; i++) {
-      result += H[j][i];
-    }
-  }
-  return result;
-}
-
-int main(int argc, char *argv[]) { test(); return 0;}
 
 int main2(int argc, char *argv[]) {
   MPI_Init(&argc, &argv);
