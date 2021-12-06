@@ -214,7 +214,7 @@ func getMatches(searchStr string) []string {
 	return matches
 }
 
-func main() {
+func main2() {
 	var wg sync.WaitGroup
 	matches := getMatches(GRAPHICS_HDF5_PATH)
 	for _, fi := range matches {
@@ -226,7 +226,7 @@ func main() {
 	log.Println("All done")
 }
 
-func main2() {
+func main() {
 	var wg sync.WaitGroup
 	matches := getMatches(GRAPHICS_DATA_PATH)
 	for _, fi := range matches {
