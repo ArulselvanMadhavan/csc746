@@ -19,7 +19,7 @@ if (NOT HDF5_IS_PARALLEL)
 endif (NOT HDF5_IS_PARALLEL)
 
 
-add_executable(tsunami timer.c memory.c tsunami.c file_ops.c hdf5_file_ops.c)
+add_executable(tsunami timer.c memory.c tsunami.c file_ops.c hdf5_file_ops.c omp-test.c omp-test.h)
 set(IncludeDirs "${MPI_C_INCLUDE_PATH};${HDF5_C_INCLUDE_DIRS}")
 set_target_properties(tsunami PROPERTIES INCLUDE_DIRECTORIES
 "${IncludeDirs}")
@@ -28,8 +28,8 @@ set_target_properties(tsunami PROPERTIES COMPILE_FLAGS
 set_target_properties(tsunami PROPERTIES LINK_FLAGS
   "${MPI_C_LINK_FLAGS}")
 
-target_compile_options(tsunami PRIVATE -fopenmp -Wall -pedantic -march=native)
-target_link_options(tsunami PRIVATE -fopenmp)
+target_compile_options(tsunami PRIVATE -fopenmp -Wall -pedantic -fopenmp-targets=nvptx64)
+target_link_options(tsunami PRIVATE -fopenmp -fopenmp-targets=nvptx64)
 target_link_libraries(tsunami ${HDF5_C_LIBRARIES})
 target_link_libraries(tsunami ${MPI_C_LIBRARIES})
 target_link_libraries(tsunami -lm)

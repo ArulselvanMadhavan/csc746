@@ -5,6 +5,7 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "timer.h"
+#include "omp-test.h"
 
 #define SQ(x) ((x) * (x))
 #define SWAP_PTR(xnew, xold, xtmp) (xtmp = xnew, xnew = xold, xold = xtmp)
@@ -14,7 +15,7 @@ const int nx = 500;
 const int nhalo = 1;
 const double g = 9.8;
 const double sigma = 0.95;
-const int ntimes = 2000;
+const int ntimes = 10;
 const int nburst = 100;
 const int gdims[] = {ny + 2 * nhalo, nx + 2 * nhalo};
 
@@ -47,9 +48,10 @@ double calculateMass(double **restrict H) {
   return result;
 }
 
-int main(int argc, char *argv[]) {
-  MPI_Init(&argc, &argv);
+int main(int argc, char *argv[]) { test(); return 0;}
 
+int main2(int argc, char *argv[]) {
+  MPI_Init(&argc, &argv);
   int rank, nprocs;
   MPI_Comm comm = MPI_COMM_WORLD;
   MPI_Comm_rank(comm, &rank);
@@ -308,5 +310,5 @@ int main(int argc, char *argv[]) {
   free(dx);
   free(dy);
 
-  MPI_Finalize();
+  return MPI_Finalize();
 }
