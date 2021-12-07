@@ -38,7 +38,13 @@ int main3(int argc, char *argv[]) {
   return 0;
 }
 
-int main(int arc, char *argv[]) {
+int main(int argc, char *argv[]) {
+  MPI_Init(&argc, &argv);
+  int rank, nprocs;
+  MPI_Comm comm = MPI_COMM_WORLD;
+  MPI_Comm_rank(comm, &rank);
+  MPI_Comm_size(comm, &nprocs);
+
   const int dims[2] = {gdims[0], gdims[1]};
   const int N = gdims[0] * gdims[1];
   const int X = ny * (nx + 1);
@@ -84,7 +90,7 @@ int main(int arc, char *argv[]) {
   set_graphics_cell_coordinates((double *)x, (double *)dx, (double *)y,
                                 (double *)dy);
   set_data((double *)H);
-  /* init_io(rank, nprocs); */
+  init_io(rank, nprocs);
   init_graphics_output();
 
   /* int N = gdims[0] * gdims[1]; */
@@ -139,162 +145,162 @@ int main(int arc, char *argv[]) {
       }
     }
 
-    printf("Iteration:%d\t%d\tH:%f\tdt:%f\tMass:%f\tny:nx:%d:%d\n", dims[0],
-           dims[1], H[0], deltaT, origTM, ny, nx);
+    /* printf("Iteration:%d\t%d\tH:%f\tdt:%f\tMass:%f\tny:nx:%d:%d\n", dims[0],
+     */
+    /* dims[1], H[0], deltaT, origTM, ny, nx); */
     for (int n = 0; n < ntimes;) {
       for (int ib = 0; ib < nburst; ib++) {
-        // clang-format off
+        if (rank == 0) {
+
+          // clang-format off
 #pragma omp target teams distribute parallel for
-        // clang-format on
-        for (int j = 1; j <= ny; j++) {
-          int row = j * dims[1];
-          H[row] = H[row + 1];
-          U[row] = -U[row + 1];
-          V[row] = V[row + 1];
-          int last = row + nx + 1;
-          H[last] = H[last - 1];
-          U[last] = -U[last - 1];
-          V[last] = V[last - 1];
-        }
-
-        for (int i = 0; i <= nx + 1; i++) {
-          int row1 = 1 * dims[1];
-          int rowN = (ny + 1) * dims[1];
-          int rowNy = ny * dims[1];
-          H[i] = H[row1 + i];
-          U[i] = U[row1 + i];
-          V[i] = -V[row1 + i];
-          H[rowN + i] = H[rowNy + i];
-          U[rowN + i] = U[rowNy + i];
-          V[rowN + i] = -V[rowNy + i];
-        }
-
-        // clang-format off
-#pragma omp target teams distribute parallel for collapse(2) map(always,from:deltaT)
-        // clang-format on
-        for (int j = 1; j < ny; j++) {
-          int row = j * dims[1];
-          for (int i = 1; i < nx; i++) {
-            int pos = row + i;
-            double wavespeed = sqrt(g * H[pos]);
-            double xspeed = (fabs(U[pos]) + wavespeed) / deltaX;
-            double yspeed = (fabs(V[pos]) + wavespeed) / deltaY;
-            double my_deltaT = sigma / (xspeed + yspeed);
-            if (my_deltaT < deltaT)
-              deltaT = my_deltaT;
+          // clang-format on
+          for (int j = 1; j <= ny; j++) {
+            int row = j * dims[1];
+            H[row] = H[row + 1];
+            U[row] = -U[row + 1];
+            V[row] = V[row + 1];
+            int last = row + nx + 1;
+            H[last] = H[last - 1];
+            U[last] = -U[last - 1];
+            V[last] = V[last - 1];
           }
-        }
+
+          for (int i = 0; i <= nx + 1; i++) {
+            int row1 = 1 * dims[1];
+            int rowN = (ny + 1) * dims[1];
+            int rowNy = ny * dims[1];
+            H[i] = H[row1 + i];
+            U[i] = U[row1 + i];
+            V[i] = -V[row1 + i];
+            H[rowN + i] = H[rowNy + i];
+            U[rowN + i] = U[rowNy + i];
+            V[rowN + i] = -V[rowNy + i];
+          }
+
+          // clang-format off
+#pragma omp target teams distribute parallel for collapse(2) map(always,from:deltaT)
+          // clang-format on
+          for (int j = 1; j < ny; j++) {
+            int row = j * dims[1];
+            for (int i = 1; i < nx; i++) {
+              int pos = row + i;
+              double wavespeed = sqrt(g * H[pos]);
+              double xspeed = (fabs(U[pos]) + wavespeed) / deltaX;
+              double yspeed = (fabs(V[pos]) + wavespeed) / deltaY;
+              double my_deltaT = sigma / (xspeed + yspeed);
+              if (my_deltaT < deltaT)
+                deltaT = my_deltaT;
+            }
+          }
 
 /* #pragma omp target map(always, from : H[:N]) */
 #pragma omp target teams distribute parallel for collapse(2)
-        for (int j = 0; j < ny; j++) {
-          int row = j * (nx + 1);
-          for (int i = 0; i <= nx; i++) {
-            int pos = row + i;
-            int j1i1 = (j + 1) * dims[1] + (i + 1);
-            int j1i = (j + 1) * dims[1] + i;
-            // density calculation
-            Hx[pos] = 0.5 * (H[j1i1] + H[j1i]) -
-                      deltaT / (2.0 * deltaX) * (U[j1i1] - U[j1i]);
-            // momentum x calculation
-            Ux[pos] = 0.5 * (U[j1i1] + U[j1i]) -
-                      deltaT / (2.0 * deltaX) *
-                          ((SQ(U[j1i1]) / H[j1i1] + 0.5 * g * SQ(H[j1i1])) -
-                           (SQ(U[j1i]) / H[j1i] + 0.5 * g * SQ(H[j1i])));
-            // momentum y calculation
-            Vx[pos] =
-                0.5 * (V[j1i1] + V[j1i]) - deltaT / (2.0 * deltaX) *
-                                               ((U[j1i1] * V[j1i1] / H[j1i1]) -
-                                                (U[j1i] * V[j1i] / H[j1i]));
+          for (int j = 0; j < ny; j++) {
+            int row = j * (nx + 1);
+            for (int i = 0; i <= nx; i++) {
+              int pos = row + i;
+              int j1i1 = (j + 1) * dims[1] + (i + 1);
+              int j1i = (j + 1) * dims[1] + i;
+              // density calculation
+              Hx[pos] = 0.5 * (H[j1i1] + H[j1i]) -
+                        deltaT / (2.0 * deltaX) * (U[j1i1] - U[j1i]);
+              // momentum x calculation
+              Ux[pos] = 0.5 * (U[j1i1] + U[j1i]) -
+                        deltaT / (2.0 * deltaX) *
+                            ((SQ(U[j1i1]) / H[j1i1] + 0.5 * g * SQ(H[j1i1])) -
+                             (SQ(U[j1i]) / H[j1i] + 0.5 * g * SQ(H[j1i])));
+              // momentum y calculation
+              Vx[pos] = 0.5 * (V[j1i1] + V[j1i]) -
+                        deltaT / (2.0 * deltaX) *
+                            ((U[j1i1] * V[j1i1] / H[j1i1]) -
+                             (U[j1i] * V[j1i] / H[j1i]));
+            }
           }
-        }
 /* #pragma omp target map(always, from : Hx[:X], Ux[:X], Vx[:X]) */
 
 /*         printf("H:%f\tU:%f\tV:%f\n", Hx[0], Ux[240], Vx[240]); */
 #pragma omp target teams distribute parallel for collapse(2)
-        for (int j = 0; j <= ny; j++) {
-          int row = j * nx;
-          for (int i = 0; i < nx; i++) {
-            int pos = row + i;
-            int j1i1 = (j + 1) * dims[1] + (i + 1);
-            int ji1 = j * dims[1] + (i + 1);
-            // density calculation
-            Hy[pos] = 0.5 * (H[j1i1] + H[ji1]) -
-                      deltaT / (2.0 * deltaY) * (V[j1i1] - V[ji1]);
-            // momentum x calculation
-            Uy[pos] =
-                0.5 * (U[j1i1] + U[ji1]) - deltaT / (2.0 * deltaY) *
-                                               ((V[j1i1] * U[j1i1] / H[j1i1]) -
-                                                (V[ji1] * U[ji1] / H[ji1]));
-            // momentum y calculation
-            Vy[pos] = 0.5 * (V[j1i1] + V[ji1]) -
-                      deltaT / (2.0 * deltaY) *
-                          ((SQ(V[j1i1]) / H[j1i1] + 0.5 * g * SQ(H[j1i1])) -
-                           (SQ(V[ji1]) / H[ji1] + 0.5 * g * SQ(H[ji1])));
+          for (int j = 0; j <= ny; j++) {
+            int row = j * nx;
+            for (int i = 0; i < nx; i++) {
+              int pos = row + i;
+              int j1i1 = (j + 1) * dims[1] + (i + 1);
+              int ji1 = j * dims[1] + (i + 1);
+              // density calculation
+              Hy[pos] = 0.5 * (H[j1i1] + H[ji1]) -
+                        deltaT / (2.0 * deltaY) * (V[j1i1] - V[ji1]);
+              // momentum x calculation
+              Uy[pos] = 0.5 * (U[j1i1] + U[ji1]) -
+                        deltaT / (2.0 * deltaY) *
+                            ((V[j1i1] * U[j1i1] / H[j1i1]) -
+                             (V[ji1] * U[ji1] / H[ji1]));
+              // momentum y calculation
+              Vy[pos] = 0.5 * (V[j1i1] + V[ji1]) -
+                        deltaT / (2.0 * deltaY) *
+                            ((SQ(V[j1i1]) / H[j1i1] + 0.5 * g * SQ(H[j1i1])) -
+                             (SQ(V[ji1]) / H[ji1] + 0.5 * g * SQ(H[ji1])));
+            }
           }
-        }
 
 /* #pragma omp target map(always, from : Hy[:Y], Uy[:Y], Vy[:Y]) */
 
 /*         printf("H:%f\tU:%f\tV:%f\n", Hy[0], Uy[240], Vy[240]); */
 #pragma omp target teams distribute parallel for collapse(2)
-        for (int j = 1; j <= ny; j++) {
-          int row = j * dims[1];
-          for (int i = 1; i <= nx; i++) {
-            int pos = row + i;
-            int Xj1i = (j - 1) * (nx + 1) + i;
-            int Xj1i1 = (j - 1) * (nx + 1) + (i - 1);
-            int Yji1 = j * nx + (i - 1);
-            int Yj1i1 = j * nx + (i - 1);
-            // density calculation
-            Hnew[pos] = H[pos] - (deltaT / deltaX) * (Ux[Xj1i] - Ux[Xj1i1]) -
-                        (deltaT / deltaY) * (Vy[Yji1] - Vy[Yj1i1]);
-            // momentum x calculation
-            Unew[pos] =
-                U[pos] -
-                (deltaT / deltaX) *
-                    ((SQ(Ux[Xj1i]) / Hx[Xj1i] + 0.5 * g * SQ(Hx[Xj1i])) -
-                     (SQ(Ux[Xj1i1]) / Hx[Xj1i1] + 0.5 * g * SQ(Hx[Xj1i1]))) -
-                (deltaT / deltaY) * ((Vy[Yji1] * Uy[Yji1] / Hy[Yji1]) -
-                                     (Vy[Yj1i1] * Uy[Yj1i1] / Hy[Yj1i1]));
-            // momentum y calculation
-            Vnew[pos] =
-                V[pos] -
-                (deltaT / deltaX) * ((Ux[Xj1i] * Vx[Xj1i] / Hx[Xj1i]) -
-                                     (Ux[Xj1i1] * Vx[Xj1i1] / Hx[Xj1i1])) -
-                (deltaT / deltaY) *
-                    ((SQ(Vy[Yji1]) / Hy[Yji1] + 0.5 * g * SQ(Hy[Yji1])) -
-                     (SQ(Vy[Yj1i1]) / Hy[Yj1i1] + 0.5 * g * SQ(Hy[Yj1i1])));
+          for (int j = 1; j <= ny; j++) {
+            int row = j * dims[1];
+            for (int i = 1; i <= nx; i++) {
+              int pos = row + i;
+              int Xj1i = (j - 1) * (nx + 1) + i;
+              int Xj1i1 = (j - 1) * (nx + 1) + (i - 1);
+              int Yji1 = j * nx + (i - 1);
+              int Yj1i1 = j * nx + (i - 1);
+              // density calculation
+              Hnew[pos] = H[pos] - (deltaT / deltaX) * (Ux[Xj1i] - Ux[Xj1i1]) -
+                          (deltaT / deltaY) * (Vy[Yji1] - Vy[Yj1i1]);
+              // momentum x calculation
+              Unew[pos] =
+                  U[pos] -
+                  (deltaT / deltaX) *
+                      ((SQ(Ux[Xj1i]) / Hx[Xj1i] + 0.5 * g * SQ(Hx[Xj1i])) -
+                       (SQ(Ux[Xj1i1]) / Hx[Xj1i1] + 0.5 * g * SQ(Hx[Xj1i1]))) -
+                  (deltaT / deltaY) * ((Vy[Yji1] * Uy[Yji1] / Hy[Yji1]) -
+                                       (Vy[Yj1i1] * Uy[Yj1i1] / Hy[Yj1i1]));
+              // momentum y calculation
+              Vnew[pos] =
+                  V[pos] -
+                  (deltaT / deltaX) * ((Ux[Xj1i] * Vx[Xj1i] / Hx[Xj1i]) -
+                                       (Ux[Xj1i1] * Vx[Xj1i1] / Hx[Xj1i1])) -
+                  (deltaT / deltaY) *
+                      ((SQ(Vy[Yji1]) / Hy[Yji1] + 0.5 * g * SQ(Hy[Yji1])) -
+                       (SQ(Vy[Yj1i1]) / Hy[Yj1i1] + 0.5 * g * SQ(Hy[Yj1i1])));
+            }
           }
-        }
 
 #pragma omp target teams distribute parallel for collapse(2)
-        for (int j = 1; j <= ny; j++) {
-          int row = j * dims[1];
-          for (int i = 1; i <= nx; i++) {
-            int pos = row + i;
-            H[pos] = Hnew[pos];
-            U[pos] = Unew[pos];
-            V[pos] = Vnew[pos];
+          for (int j = 1; j <= ny; j++) {
+            int row = j * dims[1];
+            for (int i = 1; i <= nx; i++) {
+              int pos = row + i;
+              H[pos] = Hnew[pos];
+              U[pos] = Unew[pos];
+              V[pos] = Vnew[pos];
+            }
           }
-        }
-        /* printf("Iteration:%d\tdt:%f\n", n, deltaT); */
+        } // rank check
+      }
+#pragma omp target map(always, from : H[:N])
+      { /* printf("Exit burst:H:%f\n", H[10]); */
       }
       n += nburst;
       time += deltaT;
       set_data(H);
-      printf("dt:%f\n", deltaT);
-      /* if (rank == 0) { */
-      write_to_file(graph_num, n, time);
-      /* } */
+      divide_and_write(rank, dims, graph_num, n, time);
       graph_num++;
-    }
-
-#pragma omp target map(always, from : H[:N])
-    printf("%d\t%d\tH:%f\tdt:%f\tny:%d\n", dims[0], dims[1], H[0], deltaT, ny);
+    } // end ntimes loop
   }
 
-  printf("Finished Target\n");
+  /* printf("Finished Target\n"); */
   // calculate mass
   origTM = 0;
   for (int j = 1; j <= ny; j++) {
@@ -305,7 +311,11 @@ int main(int arc, char *argv[]) {
     }
   }
   double totalTime = cpu_timer_stop(starttime);
-  printf("TotalTime:%f\tMass:%f\tdt:%f\n", totalTime, origTM, deltaT);
+  if (rank == 0) {
+    printf("TotalTime:%f\tMass:%f\tdt:%f\n", totalTime, origTM, deltaT);
+  }
+  MPI_Finalize();
+  return 0;
 }
 
 void initArrays(double **restrict H, double **restrict U, double **restrict V) {
@@ -324,7 +334,7 @@ void initArrays(double **restrict H, double **restrict U, double **restrict V) {
   }
 }
 
-int main2(int argc, char *argv[]) {
+int mainmpi(int argc, char *argv[]) {
   MPI_Init(&argc, &argv);
   int rank, nprocs;
   MPI_Comm comm = MPI_COMM_WORLD;
@@ -555,10 +565,10 @@ int main2(int argc, char *argv[]) {
       double totalMass = calculateMass(H);
       printf("Iteration:%5.5d, Time:%f, Timestep:%f Mass:%f\n", n, time, deltaT,
              totalMass);
-      write_to_file(graph_num, n, time);
+      /* write_to_file(graph_num, n, time); */
     }
     /* printf("%d\t%p\n", rank, (double *)H); */
-    /* divide_and_write(rank, gdims, graph_num, n, time); */
+    divide_and_write(rank, gdims, graph_num, n, time);
     /* parallel_write(graph_num, n, time); */
     graph_num++;
   }

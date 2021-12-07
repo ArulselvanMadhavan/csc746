@@ -120,7 +120,7 @@ void divide_and_write(int rank, const int gdims[2], int graph_num, int ncycle,
   } else {
     MPI_Recv(data_recv, data_per_proc, MPI_DOUBLE, 0, graph_num, MPI_COMM_WORLD,
              &status);
-    printf("Received Rank:%d\n", rank);
+    /* printf("Received Rank:%d\n", rank); */
   }
   MPI_Barrier(MPI_COMM_WORLD);
   sprintf(filename, "./graphics_output/graph%05d.hdf5", graph_num);
